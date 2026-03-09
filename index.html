@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDM Conference Dashboard v2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#080808; --card:#111111; --card2:#161616;
+  --border:#1e1e1e; --border2:rgba(255,255,255,0.04);
+  --t1:#f0f0f0; --t2:#a0a0a0; --t3:#606060; --lbl:#555;
+  --gold:#F5C125; --gold-b:rgba(245,193,37,0.3); --gold-d:rgba(245,193,37,0.08);
+  --gold-glow:rgba(245,193,37,0.18);
+  --green:#10b981; --green-d:rgba(16,185,129,0.12);
+  --red:#f43f5e; --red-d:rgba(244,63,94,0.12);
+  --blue:#3b82f6; --blue-d:rgba(59,130,246,0.12);
+  --purple:#a78bfa; --purple-d:rgba(167,139,250,0.12);
+  --orange:#fb923c; --orange-d:rgba(251,146,60,0.12);
+  --text:#f0f0f0;
+}
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; line-height:1.5; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(245,193,37,0.08) 0%, transparent 68%),
+    radial-gradient(ellipse 900px 700px at -5% -5%, rgba(245,193,37,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 600px 500px at 105% 105%, rgba(59,130,246,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 400px at 105% 0%, rgba(167,139,250,0.03) 0%, transparent 55%);
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 30%, transparent 100%);
+}
+.nav, .page, .setup-overlay { position:relative; z-index:1; }
+
+/* SETUP OVERLAY */
+.setup-overlay {
+  position:fixed; inset:0; background:rgba(8,8,8,0.97); z-index:9999;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:24px;
+}
+.setup-overlay.hidden { display:none; }
+.setup-box {
+  background:var(--card); border:1px solid rgba(245,193,37,0.2); border-radius:12px;
+  padding:40px; max-width:480px; width:90%;
+}
+.setup-box h2 { font-size:18px; color:var(--gold); margin-bottom:8px; }
+.setup-box p { font-size:12px; color:var(--t2); margin-bottom:20px; line-height:1.7; }
+.setup-box label { display:block; font-size:10px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--t3); margin-bottom:6px; margin-top:14px; }
+.setup-box input {
+  width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px; color:var(--text); font-family:'DM Mono',monospace; font-size:11px;
+  padding:10px 12px; outline:none; transition:border-color 0.15s;
+}
+.setup-box input:focus { border-color:rgba(245,193,37,0.4); }
+.setup-box button {
+  margin-top:20px; width:100%; padding:10px; background:var(--gold); color:#080808;
+  font-weight:700; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+  border:none; border-radius:6px; cursor:pointer;
+}
+.setup-box button:hover { background:#ffd166; }
+
+/* LOADING */
+.loading-screen {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:999; transition:opacity 0.4s;
+}
+.loading-screen.hidden { opacity:0; pointer-events:none; }
+.loading-bar-bg { width:200px; height:2px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.loading-bar-fill { height:100%; background:var(--gold); border-radius:2px; animation:loadbar 1.2s ease-in-out infinite; }
+@keyframes loadbar { 0%{width:0%} 60%{width:80%} 100%{width:100%} }
+.loading-text { font-size:10px; color:var(--t3); margin-top:12px; letter-spacing:0.1em; }
+.loading-logo { font-size:11px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:24px; }
+
+/* CONNECTION STATUS */
+.conn-dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
+.conn-dot.ok { background:var(--green); box-shadow:0 0 6px rgba(16,185,129,0.6); }
+.conn-dot.err { background:var(--red); box-shadow:0 0 6px rgba(244,63,94,0.6); }
+
+/* NAV */
+.nav { display:flex; align-items:center; gap:0; border-bottom:1px solid rgba(255,255,255,0.08); padding:0 36px; position:sticky; top:0; z-index:100; background:rgba(8,8,8,0.94); backdrop-filter:blur(16px); }
+.nav::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent 0%, rgba(245,193,37,0.7) 20%, rgba(245,193,37,0.35) 60%, transparent 100%); }
+.nav-brand { display:flex; align-items:center; gap:10px; padding:13px 0; margin-right:40px; }
+.nav-brand-text { display:flex; flex-direction:column; gap:0; }
+.nav-sdm { font-size:13px; font-weight:700; letter-spacing:0.1em; color:var(--text); text-transform:uppercase; line-height:1; }
+.nav-sdm-sub { font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--t3); margin-top:3px; font-weight:500; }
+.nav-divider { width:1px; height:28px; background:rgba(255,255,255,0.1); }
+.nav-period { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--t3); }
+.nav-tab { font-size:10px; font-weight:600; letter-spacing:0.1em; color:var(--t3); padding:17px 18px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.2s,border-color 0.2s; text-transform:uppercase; }
+.nav-tab:hover { color:var(--t2); }
+.nav-tab.active { color:var(--gold); border-bottom-color:var(--gold); text-shadow:0 0 20px rgba(245,193,37,0.4); }
+.nav-right { margin-left:auto; display:flex; align-items:center; gap:12px; }
+.sync-btn { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--t3); background:none; border:1px solid rgba(255,255,255,0.08); padding:5px 14px; border-radius:20px; cursor:pointer; transition:all 0.2s; }
+.sync-btn:hover { border-color:var(--gold-b); color:var(--gold); background:var(--gold-d); }
+.sync-btn.syncing { color:var(--gold); border-color:var(--gold-b); background:var(--gold-d); }
+.last-sync { font-size:9px; color:var(--t3); letter-spacing:0.06em; }
+
+/* PAGES */
+.page { display:none; padding:32px 36px 60px; }
+.page.active { display:block; animation:pageFade 0.25s ease; }
+@keyframes pageFade { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* SHARED */
+.eyebrow { font-size:9px; font-weight:600; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:9px; opacity:0.7; }
+.h1 { font-size:22px; font-weight:700; letter-spacing:-0.3px; color:var(--text); line-height:1.1; }
+.h1 em { color:var(--gold); font-style:normal; }
+.meta { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--t3); margin-top:8px; }
+.card { background:var(--card); border:1px solid rgba(245,193,37,0.1); border-radius:6px; overflow:hidden; transition:border-color 0.2s; }
+.card:hover { border-color:rgba(245,193,37,0.2); }
+.ch { padding:16px 20px; border-bottom:1px solid rgba(245,193,37,0.08); display:flex; align-items:center; justify-content:space-between; }
+.ch-lbl { font-size:9px; font-weight:600; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); opacity:0.7; }
+.ch-title { font-size:12px; font-weight:600; color:var(--text); margin-top:3px; letter-spacing:0.02em; }
+.ch-accent { display:block; width:28px; height:2px; background:var(--gold); margin-bottom:10px; }
+.pill { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); background:var(--gold-d); border:1px solid var(--gold-b); padding:4px 12px; border-radius:3px; }
+
+/* KPI */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-bottom:20px; border:1px solid rgba(245,193,37,0.12); border-radius:6px; overflow:hidden; }
+.kpi { background:var(--card); border:none; border-right:1px solid rgba(245,193,37,0.1); border-radius:0; padding:24px 24px 20px; position:relative; overflow:hidden; transition:background 0.2s; animation:fadeUp 0.4s ease both; }
+.kpi:last-child { border-right:none; }
+.kpi:hover { background:#161616; }
+.kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--gold) 0%, rgba(245,193,37,0.2) 60%, transparent 100%); }
+.kpi:nth-child(1) { animation-delay:0.05s; }
+.kpi:nth-child(2) { animation-delay:0.1s; }
+.kpi:nth-child(3) { animation-delay:0.15s; }
+.kpi:nth-child(4) { animation-delay:0.2s; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.kpi-lbl { font-size:9px; font-weight:600; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; opacity:0.7; }
+.kpi-val { font-size:28px; font-weight:700; letter-spacing:-1px; line-height:1; color:var(--gold); text-shadow:0 0 30px rgba(245,193,37,0.25); font-family:'DM Mono',monospace; }
+.kpi-val.w { color:var(--text); text-shadow:none; }
+.kpi-sub { font-size:10px; color:var(--t3); margin-top:8px; }
+
+/* OVERVIEW LAYOUT */
+.ov-head { margin-bottom:22px; }
+.ov-layout { display:grid; grid-template-columns:220px 1fr; gap:16px; align-items:start; }
+.ov-sidebar { display:flex; flex-direction:column; gap:12px; position:sticky; top:72px; }
+.ov-main { display:flex; flex-direction:column; gap:14px; min-width:0; }
+.ov-bottom { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* TABLE */
+table { width:100%; border-collapse:collapse; }
+thead th { font-size:9px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); opacity:0.6; padding:10px 18px; text-align:left; border-bottom:1px solid rgba(245,193,37,0.1); white-space:nowrap; }
+thead th.r { text-align:right; }
+tbody tr { border-bottom:1px solid rgba(245,193,37,0.05); transition:background 0.1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:rgba(245,193,37,0.025); }
+td { padding:10px 18px; vertical-align:middle; }
+td.nm { font-weight:600; color:var(--text); font-size:12.5px; }
+td.lc { font-size:10.5px; color:var(--t3); }
+td.at { font-size:10.5px; color:var(--t2); }
+td.bu { text-align:right; color:var(--gold); font-weight:600; font-size:12px; white-space:nowrap; }
+td.ac { text-align:right; color:var(--green); font-weight:600; font-size:12px; white-space:nowrap; }
+td.st { text-align:right; }
+.bw { display:flex; align-items:center; gap:7px; justify-content:flex-end; }
+.bb { width:54px; height:3px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; flex-shrink:0; }
+.bf { height:100%; border-radius:3px; background:linear-gradient(90deg,#F5C125,#ffd166); box-shadow:0 0 6px rgba(245,193,37,0.5); }
+
+/* PERSON LIST */
+.pr { display:flex; align-items:center; gap:11px; padding:10px 16px; border-bottom:1px solid var(--border2); transition:background 0.1s; cursor:pointer; }
+.pr:last-child { border-bottom:none; }
+.pr:hover { background:rgba(245,193,37,0.04); }
+.pr:hover .pn { color:var(--gold); }
+.av { width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; flex-shrink:0; background:var(--gold-d); color:var(--gold); border:1px solid var(--gold-b); }
+.pi { flex:1; min-width:0; }
+.pn { font-size:12px; font-weight:600; color:var(--text); transition:color 0.15s; }
+.pc { font-size:10px; color:var(--t3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pa { font-size:11.5px; font-weight:600; color:var(--t2); white-space:nowrap; }
+.pr.pr-active { background:rgba(245,193,37,0.06); }
+.pr.pr-active .pn { color:var(--gold); }
+.pr-arrow { font-size:10px; color:var(--t3); flex-shrink:0; }
+
+/* Q SPLIT */
+.qs { display:grid; grid-template-columns:1fr 1fr; }
+.qc { padding:14px 16px; }
+.qc:first-child { border-right:1px solid rgba(255,255,255,0.08); }
+.ql { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--lbl); margin-bottom:5px; }
+.qv { font-size:18px; font-weight:700; letter-spacing:-0.3px; color:var(--gold); }
+.qs2 { font-size:10px; color:var(--t3); margin-top:3px; }
+
+/* CATEGORY BARS */
+.catlist { padding:16px 18px; display:flex; flex-direction:column; gap:14px; }
+.crt { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+.cn { font-size:12px; font-weight:500; color:var(--text); }
+.cp { font-size:10px; color:var(--gold); font-weight:600; }
+.ca { font-size:10px; color:var(--t3); }
+.cbb { width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
+.cbf { height:100%; border-radius:4px; background:var(--gold); box-shadow:0 0 8px rgba(245,193,37,0.4); }
+
+/* EMPTY / ACTUALS */
+.empty { padding:36px 20px; text-align:center; }
+.ei { font-size:20px; margin-bottom:10px; opacity:0.25; }
+.et { font-size:12px; font-weight:600; color:var(--t2); margin-bottom:5px; }
+.eb { font-size:10.5px; color:var(--t3); line-height:1.8; }
+.eb strong { color:var(--gold); font-weight:500; }
+.actuals-row { display:grid; grid-template-columns:1fr 110px 110px 100px; gap:0; border-bottom:1px solid var(--border2); align-items:center; }
+.actuals-row:last-child { border-bottom:none; }
+.actuals-row > div { padding:9px 18px; font-size:12px; }
+.actuals-row .ar-name { font-weight:600; color:var(--text); }
+.actuals-row .ar-bud { color:var(--gold); font-weight:600; text-align:right; }
+.actuals-row .ar-act { color:var(--green); font-weight:600; text-align:right; }
+.actuals-row .ar-var { text-align:right; font-weight:600; }
+.ar-var.over { color:var(--red); }
+.ar-var.under { color:var(--green); }
+.ar-var.none { color:var(--t3); }
+
+/* CONF DRILL */
+tbody tr.conf-row { cursor:pointer; }
+tbody tr.conf-row:hover td.nm { color:var(--gold); }
+tbody tr.conf-row.open { background:rgba(245,193,37,0.04); }
+tbody tr.conf-row.open td.nm { color:var(--gold); }
+tr.conf-drill td { padding:0; background:var(--card2); border-bottom:1px solid rgba(255,255,255,0.08); }
+tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.drill-section-title { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--lbl); margin-bottom:12px; }
+.drill-person { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--border2); cursor:pointer; border-left:2px solid transparent; padding-left:8px; margin-left:-10px; transition:border-color 0.15s, background 0.15s; }
+.drill-person:last-child { border-bottom:none; }
+.drill-person:hover { background:rgba(245,193,37,0.03); }
+.drill-person-active { background:rgba(245,193,37,0.07); border-left:2px solid var(--gold); border-radius:0 6px 6px 0; }
+.drill-person-active .drill-person-name { color:var(--gold); }
+.drill-person-active .drill-person-av { background:rgba(245,193,37,0.2); border-color:var(--gold); }
+.drill-person-av { width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; background:var(--gold-d); color:var(--gold); border:1px solid var(--gold-b); flex-shrink:0; }
+.drill-person-name { flex:1; font-size:12px; font-weight:600; color:var(--text); }
+.drill-person-amt { font-size:12px; font-weight:600; color:var(--gold); }
+.drill-cat { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--border2); }
+.drill-cat:last-child { border-bottom:none; }
+.drill-cat-icon { font-size:13px; width:20px; text-align:center; flex-shrink:0; }
+.drill-cat-name { flex:1; font-size:11.5px; color:var(--text); }
+.drill-cat-bar-wrap { width:80px; height:4px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
+.drill-cat-bar { height:100%; border-radius:4px; }
+.drill-cat-amt { font-size:11.5px; font-weight:600; color:var(--gold); min-width:60px; text-align:right; }
+
+/* PROFILE */
+.ov-conf-view { display:flex; flex-direction:column; gap:14px; }
+.ov-back { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:var(--t3); background:none; border:none; cursor:pointer; padding:0 0 16px; transition:color 0.15s; letter-spacing:0.02em; }
+.ov-back:hover { color:var(--text); }
+.profile-panel { display:flex; flex-direction:column; gap:16px; }
+.profile-header { background:var(--card); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:24px 28px; display:flex; align-items:center; gap:24px; }
+.profile-avatar { width:64px; height:64px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; background:var(--gold-d); color:var(--gold); border:2px solid var(--gold-b); }
+.profile-info { flex:1; }
+.profile-name { font-size:22px; font-weight:700; color:var(--text); letter-spacing:-0.3px; }
+.profile-base { font-size:11px; color:var(--t2); margin-top:3px; display:flex; align-items:center; gap:6px; }
+.profile-base .dot { width:4px; height:4px; border-radius:50%; background:var(--t3); }
+.profile-stats { display:flex; gap:32px; margin-top:14px; }
+.ps-val { font-size:20px; font-weight:700; color:var(--gold); letter-spacing:-0.5px; }
+.ps-lbl { font-size:9px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--lbl); margin-top:1px; }
+.conf-breakdown { display:flex; flex-direction:column; gap:10px; }
+.conf-item { background:var(--card); border:1px solid rgba(255,255,255,0.08); border-radius:8px; overflow:hidden; }
+.conf-item-header { padding:14px 20px; display:flex; align-items:center; gap:16px; cursor:pointer; transition:background 0.1s; user-select:none; }
+.conf-item-header:hover { background:rgba(255,255,255,0.02); }
+.conf-item.open .conf-item-header { border-bottom:1px solid rgba(255,255,255,0.08); }
+.cih-left { flex:1; display:flex; align-items:center; gap:14px; }
+.cih-name { font-size:13px; font-weight:600; color:var(--text); }
+.cih-loc { font-size:10px; color:var(--t3); margin-top:1px; }
+.cih-badge { font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:3px 8px; border-radius:4px; background:rgba(245,193,37,0.08); color:var(--gold); border:1px solid var(--gold-b); }
+.cih-budget { font-size:14px; font-weight:700; color:var(--gold); white-space:nowrap; }
+.cih-arrow { font-size:10px; color:var(--t3); margin-left:12px; transition:transform 0.2s; }
+.conf-item.open .cih-arrow { transform:rotate(180deg); }
+.conf-cats { padding:16px 20px 18px; display:flex; flex-direction:column; gap:12px; }
+.cat-row { display:flex; align-items:center; gap:14px; }
+.cat-icon { font-size:14px; width:24px; text-align:center; flex-shrink:0; }
+.cat-info { flex:1; }
+.cat-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+.cat-name-sm { font-size:11.5px; font-weight:500; color:var(--text); }
+.cat-amounts { display:flex; align-items:center; gap:8px; }
+.cat-budget-amt { font-size:11px; font-weight:600; color:var(--gold); }
+.cat-actual-amt { font-size:11px; font-weight:600; color:var(--green); }
+.cat-actual-amt.none { color:var(--t3); }
+.cat-bar-bg { width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
+.cat-bar-fill { height:100%; border-radius:4px; }
+.conf-total-row { display:flex; justify-content:space-between; align-items:center; padding:10px 20px 14px; border-top:1px solid rgba(255,255,255,0.08); margin-top:4px; }
+.ctl { font-size:9px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--lbl); }
+.ctv { font-size:13px; font-weight:700; color:var(--gold); }
+
+/* COMMENTS PANEL */
+.cpanel { position:fixed; right:0; top:0; height:100vh; width:320px; background:#131313; border-left:1px solid rgba(255,255,255,0.09); z-index:900; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.24s cubic-bezier(0.25,0.46,0.45,0.94); box-shadow:-12px 0 40px rgba(0,0,0,0.5); }
+.cpanel.open { transform:translateX(0); }
+.cph { padding:16px 18px 13px; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; align-items:flex-start; gap:10px; flex-shrink:0; }
+.cph-info { flex:1; min-width:0; }
+.cph-title { font-size:13px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cph-ctx { font-size:9px; color:var(--t3); margin-top:2px; letter-spacing:0.06em; }
+.cph-close { font-size:13px; color:var(--t3); cursor:pointer; padding:3px 6px; border-radius:4px; transition:all 0.15s; flex-shrink:0; }
+.cph-close:hover { color:var(--text); background:rgba(255,255,255,0.08); }
+.cph-back { font-size:10px; font-weight:700; letter-spacing:0.05em; color:var(--t3); background:none; border:none; cursor:pointer; padding:4px 0; display:none; align-items:center; gap:4px; transition:color 0.15s; flex-shrink:0; white-space:nowrap; }
+.cph-back:hover { color:var(--text); }
+.cph-resolve { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; background:none; border:1px solid rgba(255,255,255,0.14); color:var(--t3); padding:5px 11px; border-radius:4px; cursor:pointer; transition:all 0.15s; white-space:nowrap; flex-shrink:0; }
+.cph-resolve:hover { border-color:var(--green); color:var(--green); background:rgba(16,185,129,0.06); }
+.cph-resolve.is-resolved { border-color:rgba(16,185,129,0.35); color:var(--green); background:rgba(16,185,129,0.1); }
+.cpl { flex:1; overflow-y:auto; padding:0; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.1) transparent; }
+.cpl::-webkit-scrollbar { width:4px; }
+.cpl::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+.cpl-empty { padding:48px 20px; text-align:center; color:var(--t3); font-size:11px; line-height:2; }
+.cpl-resolved-banner { display:flex; align-items:center; gap:8px; padding:10px 18px; background:rgba(16,185,129,0.08); border-bottom:1px solid rgba(16,185,129,0.15); font-size:10px; font-weight:600; color:var(--green); letter-spacing:0.06em; }
+.ct { padding:13px 16px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.ct:last-child { border-bottom:none; }
+.ct-resolved { opacity:0.6; }
+.ct-first { font-size:12px; color:var(--text); line-height:1.55; cursor:pointer; margin-bottom:6px; }
+.ct-first:hover { color:var(--gold); }
+.ct-meta { display:flex; align-items:center; gap:8px; margin-bottom:7px; flex-wrap:wrap; }
+.ct-time { font-size:9px; color:var(--t3); letter-spacing:0.04em; }
+.ct-reply-count { font-size:9px; color:var(--blue); font-weight:600; }
+.ct-resolved-tag { font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--green); background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:3px; padding:1px 5px; }
+.ct-actions { display:flex; align-items:center; gap:8px; }
+.ct-resolve { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; background:none; border:1px solid rgba(255,255,255,0.12); color:var(--t3); padding:4px 10px; border-radius:4px; cursor:pointer; transition:all 0.15s; }
+.ct-resolve:hover { border-color:var(--green); color:var(--green); background:rgba(16,185,129,0.06); }
+.ct-resolve.is-resolved { border-color:rgba(16,185,129,0.3); color:var(--green); background:rgba(16,185,129,0.08); }
+.ct-del { font-size:11px; color:var(--t3); cursor:pointer; opacity:0.4; transition:opacity 0.15s; padding:2px 5px; }
+.ct-del:hover { opacity:1; color:var(--red); }
+.cd-msg { padding:14px 18px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.cd-msg:last-child { border-bottom:none; }
+.cd-msg.is-original { background:rgba(245,193,37,0.03); border-left:2px solid rgba(245,193,37,0.25); }
+.cd-msg-meta { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.cd-msg-label { font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); }
+.cd-msg-time { font-size:9px; color:var(--t3); letter-spacing:0.04em; flex:1; }
+.cd-msg-del { font-size:10px; color:var(--t3); cursor:pointer; opacity:0.4; transition:opacity 0.15s; }
+.cd-msg-del:hover { opacity:1; color:var(--red); }
+.cd-msg-text { font-size:12px; color:var(--t2); line-height:1.65; white-space:pre-wrap; }
+.cpi { padding:12px 18px 18px; border-top:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
+.cpi-ta { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:7px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:12px; padding:10px 12px; resize:none; height:72px; outline:none; line-height:1.5; transition:border-color 0.15s; }
+.cpi-ta:focus { border-color:rgba(245,193,37,0.4); }
+.cpi-ta::placeholder { color:var(--t3); }
+.cpi-row { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.cpi-hint { font-size:9px; color:var(--t3); letter-spacing:0.04em; }
+.cpi-btn { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#080808; background:var(--gold); border:none; padding:6px 16px; border-radius:4px; cursor:pointer; transition:background 0.15s; }
+.cpi-btn:hover { background:#ffd166; }
+
+/* ADMIN */
+.admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.admin-section { background:var(--card); border:1px solid rgba(245,193,37,0.1); border-radius:8px; padding:20px; }
+.admin-section h3 { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; opacity:0.8; }
+.admin-section label { display:block; font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--t3); margin-bottom:4px; margin-top:10px; }
+.admin-section label:first-of-type { margin-top:0; }
+.admin-input, .admin-select {
+  width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  border-radius:5px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:12px;
+  padding:8px 10px; outline:none; transition:border-color 0.15s;
+}
+.admin-input:focus, .admin-select:focus { border-color:rgba(245,193,37,0.4); }
+.admin-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606060' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:28px; }
+.admin-select option { background:#111; color:#f0f0f0; }
+.admin-btn {
+  margin-top:14px; padding:8px 20px; background:var(--gold); color:#080808; font-weight:700;
+  font-size:10px; letter-spacing:0.1em; text-transform:uppercase; border:none; border-radius:5px;
+  cursor:pointer; transition:background 0.15s;
+}
+.admin-btn:hover { background:#ffd166; }
+.admin-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.admin-btn.danger { background:var(--red); color:white; }
+.admin-btn.danger:hover { background:#ff6b82; }
+.admin-btn.secondary { background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--t2); }
+.admin-btn.secondary:hover { border-color:var(--gold-b); color:var(--gold); }
+.admin-list { margin-top:16px; border-top:1px solid rgba(255,255,255,0.06); }
+.admin-list-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
+.admin-list-item:last-child { border-bottom:none; }
+.admin-list-item .name { flex:1; font-weight:600; color:var(--text); }
+.admin-list-item .sub { font-size:10px; color:var(--t3); }
+.admin-list-item button { font-size:9px; padding:3px 8px; border-radius:3px; cursor:pointer; border:1px solid rgba(255,255,255,0.1); background:none; color:var(--t3); transition:all 0.15s; }
+.admin-list-item button:hover { border-color:var(--gold-b); color:var(--gold); }
+.admin-list-item button.del:hover { border-color:rgba(244,63,94,0.4); color:var(--red); }
+.admin-full { grid-column:1/-1; }
+.import-status { margin-top:12px; font-size:11px; color:var(--t2); line-height:1.8; }
+.import-status .ok { color:var(--green); }
+.import-status .err { color:var(--red); }
+.inline-row { display:flex; gap:8px; align-items:flex-end; }
+.inline-row > div { flex:1; }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .nav { padding:0 16px; }
+  .nav-brand { font-size:10px; margin-right:16px; }
+  .nav-tab { padding:14px 10px; font-size:9px; }
+  .last-sync { display:none; }
+  .page { padding:20px 16px 80px; }
+  .kpi-row { grid-template-columns:1fr 1fr; }
+  .kpi { padding:16px 16px 14px; }
+  .kpi-val { font-size:22px; }
+  .ov-layout { grid-template-columns:1fr; gap:12px; }
+  .ov-sidebar { position:static; }
+  .ov-bottom { grid-template-columns:1fr; }
+  .drill-inner { grid-template-columns:1fr !important; }
+  .admin-grid { grid-template-columns:1fr; }
+  .profile-header { flex-direction:column; align-items:flex-start; gap:14px; padding:18px 16px; }
+  .profile-avatar { width:48px; height:48px; font-size:15px; }
+  .profile-stats { gap:18px; flex-wrap:wrap; }
+  .actuals-row { grid-template-columns:1fr 80px 80px; }
+  .actuals-row .ar-var { display:none; }
+  thead th.hide-mobile, td.hide-mobile { display:none; }
+}
+@media (max-width: 400px) {
+  .kpi-val { font-size:19px; }
+  .nav-brand { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP OVERLAY -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-box">
+    <h2>Supabase Connection</h2>
+    <p>Enter your Supabase project credentials to connect. You can find these in your Supabase dashboard under Settings > API.</p>
+    <label>Supabase URL</label>
+    <input type="text" id="setup-url" placeholder="https://your-project.supabase.co">
+    <label>Anon Key</label>
+    <input type="text" id="setup-key" placeholder="eyJhbGciOiJIUzI1NiIs...">
+    <button onclick="saveSetup()">Connect</button>
+    <div id="setup-error" style="margin-top:12px;font-size:11px;color:var(--red);display:none"></div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-screen hidden" id="loading">
+  <div class="loading-logo">SDM Conference Dashboard</div>
+  <div class="loading-bar-bg"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading from Supabase...</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="main-nav" style="display:none">
+  <div class="nav-brand">
+    <img src="https://cdn.prod.website-files.com/6542c558790cbcc1ce789de0/67fd6587130877c6da130466_SDM%20Logomark.svg" width="28" height="28" alt="SDM">
+    <div class="nav-brand-text">
+      <span class="nav-sdm">SDM</span>
+      <span class="nav-sdm-sub">Conference Dashboard</span>
+    </div>
+    <div class="nav-divider"></div>
+    <span class="nav-period">H1 2026</span>
+  </div>
+  <div class="nav-tab active" data-page="overview" onclick="navigate('overview')">Overview</div>
+  <div class="nav-tab" data-page="admin" onclick="navigate('admin')">Admin</div>
+  <div class="nav-right">
+    <span id="conn-status" style="display:flex;align-items:center;font-size:9px;color:var(--t3)"><span class="conn-dot ok"></span>Connected</span>
+    <span class="last-sync" id="last-sync"></span>
+    <button class="sync-btn" onclick="loadAllData(true)" id="sync-btn">Refresh</button>
+  </div>
+</nav>
+
+<!-- PAGE: OVERVIEW -->
+<div id="page-overview" class="page" style="display:none">
+  <div class="ov-head">
+    <div class="eyebrow">Secure Digital Markets - H1 2026 - Conference Planning</div>
+    <div class="h1">Conference <em>Budget</em></div>
+    <div class="meta" id="overview-meta">Loading...</div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Total H1 Budget</div><div class="kpi-val" id="kpi-total">--</div><div class="kpi-sub">All conferences combined</div></div>
+    <div class="kpi"><div class="kpi-lbl">Conferences</div><div class="kpi-val w" id="kpi-conf">--</div><div class="kpi-sub" id="kpi-conf-sub">Loading...</div></div>
+    <div class="kpi"><div class="kpi-lbl">Attendees</div><div class="kpi-val w" id="kpi-att">--</div><div class="kpi-sub" id="kpi-att-sub">Loading...</div></div>
+    <div class="kpi"><div class="kpi-lbl">Avg Cost / Event</div><div class="kpi-val" id="kpi-avg">--</div><div class="kpi-sub">Across all conferences</div></div>
+  </div>
+  <div class="ov-layout">
+    <div class="ov-sidebar">
+      <div class="card">
+        <div class="ch"><div><span class="ch-accent"></span><div class="ch-lbl">Team</div><div class="ch-title">Budget by Person</div></div></div>
+        <div id="people-list"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div><span class="ch-accent"></span><div class="ch-lbl">Quarter Split</div><div class="ch-title">Q1 vs Q2</div></div></div>
+        <div class="qs">
+          <div class="qc"><div class="ql">Q1 2026</div><div class="qv" id="q1-total">--</div><div class="qs2" id="q1-pct">--</div></div>
+          <div class="qc"><div class="ql">Q2 2026</div><div class="qv" id="q2-total">--</div><div class="qs2" id="q2-pct">--</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ov-main">
+      <div id="ov-conf-view" class="ov-conf-view">
+        <div class="card">
+          <div class="ch">
+            <div><span class="ch-accent"></span><div class="ch-lbl">All Conferences</div><div class="ch-title">Spend by Event -- Ranked by Budget</div></div>
+            <span class="pill" id="conf-pill">-- events</span>
+          </div>
+          <table>
+            <thead><tr><th>Conference</th><th class="hide-mobile">Location</th><th class="hide-mobile">Attendees</th><th class="r">Budget</th><th class="r">Actual</th><th>Notes</th></tr></thead>
+            <tbody id="conf-table-body"></tbody>
+          </table>
+        </div>
+        <div class="ov-bottom">
+          <div class="card">
+            <div class="ch"><div><span class="ch-accent"></span><div class="ch-lbl">Spend Breakdown</div><div class="ch-title">Budget by Category</div></div></div>
+            <div class="catlist" id="cat-breakdown"></div>
+          </div>
+          <div class="card">
+            <div class="ch">
+              <div><span class="ch-accent"></span><div class="ch-lbl">Post-Event Tracking</div><div class="ch-title">Budget vs. Actual</div></div>
+              <span class="pill" id="actuals-pill">0 completed</span>
+            </div>
+            <div id="actuals-content"></div>
+          </div>
+        </div>
+      </div>
+      <div id="ov-profile-view" style="display:none">
+        <button class="ov-back" onclick="showConferences()">Back to All Conferences</button>
+        <div id="profile-panel" class="profile-panel"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: PERSON (hash route) -->
+<div id="page-person" class="page" style="display:none">
+  <button class="ov-back" onclick="navigate('overview')">Back to Overview</button>
+  <div id="person-profile-panel" class="profile-panel"></div>
+</div>
+
+<!-- PAGE: ADMIN -->
+<div id="page-admin" class="page" style="display:none">
+  <div class="ov-head">
+    <div class="eyebrow">Administration</div>
+    <div class="h1">Manage <em>Data</em></div>
+    <div class="meta">Add conferences, team members, and expenses</div>
+  </div>
+
+  <div class="admin-grid">
+    <!-- ADD CONFERENCE -->
+    <div class="admin-section">
+      <h3>Add Conference</h3>
+      <label>Name</label>
+      <input class="admin-input" id="adm-conf-name" placeholder="e.g. Money 20/20">
+      <label>Location</label>
+      <input class="admin-input" id="adm-conf-loc" placeholder="e.g. Las Vegas, NV">
+      <label>Quarter</label>
+      <select class="admin-select" id="adm-conf-q">
+        <option value="Q1">Q1</option><option value="Q2">Q2</option>
+        <option value="Q3">Q3</option><option value="Q4">Q4</option>
+      </select>
+      <button class="admin-btn" onclick="addConference()">Add Conference</button>
+      <div class="admin-list" id="adm-conf-list"></div>
+    </div>
+
+    <!-- ADD PERSON -->
+    <div class="admin-section">
+      <h3>Add Team Member</h3>
+      <label>Name</label>
+      <input class="admin-input" id="adm-person-name" placeholder="e.g. John">
+      <div class="inline-row">
+        <div><label>Initials</label><input class="admin-input" id="adm-person-init" placeholder="JO" maxlength="2"></div>
+        <div><label>Color</label><input type="color" id="adm-person-color" value="#F5C125" class="admin-input" style="padding:2px;height:36px"></div>
+      </div>
+      <label>Base Location</label>
+      <input class="admin-input" id="adm-person-base" placeholder="e.g. Toronto, ON">
+      <label>Role</label>
+      <input class="admin-input" id="adm-person-role" placeholder="e.g. Engineering">
+      <button class="admin-btn" onclick="addPerson()">Add Team Member</button>
+      <div class="admin-list" id="adm-person-list"></div>
+    </div>
+
+    <!-- ADD EXPENSE -->
+    <div class="admin-section admin-full">
+      <h3>Add Expense</h3>
+      <div class="inline-row">
+        <div><label>Conference</label><select class="admin-select" id="adm-exp-conf"></select></div>
+        <div><label>Person</label><select class="admin-select" id="adm-exp-person"></select></div>
+        <div><label>Category</label>
+          <select class="admin-select" id="adm-exp-cat">
+            <option>Flights</option><option>Hotel / Lodging</option><option>Conference Ticket</option>
+            <option>Meals / Per Diem</option><option>Ground Transport</option><option>Misc</option>
+          </select>
+        </div>
+        <div><label>Budgeted</label><input type="number" class="admin-input" id="adm-exp-bud" placeholder="0"></div>
+        <div><label>Actual</label><input type="number" class="admin-input" id="adm-exp-act" placeholder="0"></div>
+      </div>
+      <button class="admin-btn" onclick="addExpense()">Add Expense</button>
+      <div class="admin-list" id="adm-exp-list" style="max-height:400px;overflow-y:auto"></div>
+    </div>
+
+    <!-- BULK IMPORT -->
+    <div class="admin-section admin-full">
+      <h3>Bulk Import from Google Sheets</h3>
+      <p style="font-size:11px;color:var(--t3);margin-bottom:12px">
+        Import all data from the original Google Sheets dashboard in one click.
+        This will fetch conferences and expenses from the sheet and insert them into Supabase.
+      </p>
+      <button class="admin-btn secondary" onclick="bulkImport()" id="import-btn">Import from Google Sheets</button>
+      <div class="import-status" id="import-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMENTS PANEL -->
+<div class="cpanel" id="cpanel">
+  <div class="cph">
+    <button class="cph-back" id="cpanel-back" onclick="panelBack()">Back</button>
+    <div class="cph-info">
+      <div class="cph-title" id="cpanel-title">Notes</div>
+      <div class="cph-ctx" id="cpanel-ctx"></div>
+    </div>
+    <button class="cph-resolve" id="cpanel-resolve" onclick="resolveCurrentThread()" style="display:none">Resolve</button>
+    <span class="cph-close" onclick="closePanel()">X</span>
+  </div>
+  <div class="cpl" id="cpanel-list"></div>
+  <div class="cpi">
+    <textarea class="cpi-ta" id="cpanel-ta" placeholder="Start a new thread..."></textarea>
+    <div class="cpi-row">
+      <span class="cpi-hint" id="cpanel-hint">Enter to submit, Shift+Enter newline</span>
+      <button class="cpi-btn" id="cpanel-submit" onclick="submitComment()">Post</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============================================================================
+// CONFIG
+// ============================================================================
+let SUPABASE_URL = localStorage.getItem('sdm_sb_url') || '';
+let SUPABASE_ANON_KEY = localStorage.getItem('sdm_sb_key') || '';
+let sb = null; // supabase client
+
+const SHEET_ID = '1Q84Zrh1pGWRuZi9NP13TFL2QoDyMdhkJ8TTsYEJoj5s';
+const SHEET_API = (name) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=1&range=A4:Z500&sheet=${encodeURIComponent(name)}`;
+
+const CAT_ICONS  = { 'Flights':'✈️','Hotel / Lodging':'🏨','Conference Ticket':'🎟️','Meals / Per Diem':'🍽️','Ground Transport':'🚕','Misc':'📦' };
+const CAT_COLORS = { 'Flights':'#3b82f6','Hotel / Lodging':'#a78bfa','Conference Ticket':'#F5C125','Meals / Per Diem':'#10b981','Ground Transport':'#fb923c','Misc':'#6b7280' };
+const ALL_CATS = ['Flights','Hotel / Lodging','Conference Ticket','Meals / Per Diem','Ground Transport','Misc'];
+
+// ============================================================================
+// STATE
+// ============================================================================
+let DATA = { conferences: [], people: [], expenses: [], threads: [] };
+let currentPerson = null;
+let _cid = 0;
+const CKEYS = {};
+let _panelKey = null, _panelSlotId = null, _panelView = 'list', _panelThreadId = null;
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+const fmt = n => n ? '$' + Math.round(n).toLocaleString('en-US') : '--';
+const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '--';
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtTime = ts => { if (!ts) return ''; return new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); };
+
+function personColor(p) {
+  if (!p) return { bg:'rgba(245,193,37,0.12)', border:'rgba(245,193,37,0.3)', text:'#F5C125' };
+  return { bg: p.color_bg || 'rgba(245,193,37,0.12)', border: p.color_border || 'rgba(245,193,37,0.3)', text: p.color_text || '#F5C125' };
+}
+function findPerson(name) { return DATA.people.find(p => p.name === name); }
+function findConf(name) { return DATA.conferences.find(c => c.name === name); }
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ============================================================================
+// SETUP / CONNECTION
+// ============================================================================
+function initSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
+  try {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return true;
+  } catch(e) { console.error('Supabase init error:', e); return false; }
+}
+
+function saveSetup() {
+  const url = document.getElementById('setup-url').value.trim();
+  const key = document.getElementById('setup-key').value.trim();
+  if (!url || !key) {
+    document.getElementById('setup-error').style.display = 'block';
+    document.getElementById('setup-error').textContent = 'Both fields are required.';
+    return;
+  }
+  SUPABASE_URL = url;
+  SUPABASE_ANON_KEY = key;
+  localStorage.setItem('sdm_sb_url', url);
+  localStorage.setItem('sdm_sb_key', key);
+  if (initSupabase()) {
+    document.getElementById('setup-overlay').classList.add('hidden');
+    startApp();
+  } else {
+    document.getElementById('setup-error').style.display = 'block';
+    document.getElementById('setup-error').textContent = 'Failed to initialize. Check credentials.';
+  }
+}
+
+async function testConnection() {
+  try {
+    const { error } = await sb.from('conferences').select('id', { count: 'exact', head: true });
+    const el = document.getElementById('conn-status');
+    if (error) {
+      el.innerHTML = '<span class="conn-dot err"></span>Disconnected';
+      return false;
+    }
+    el.innerHTML = '<span class="conn-dot ok"></span>Connected';
+    return true;
+  } catch(e) {
+    document.getElementById('conn-status').innerHTML = '<span class="conn-dot err"></span>Error';
+    return false;
+  }
+}
+
+// ============================================================================
+// DATA LOADING
+// ============================================================================
+async function loadAllData(manual = false) {
+  const btn = document.getElementById('sync-btn');
+  btn.classList.add('syncing'); btn.textContent = 'Syncing...';
+  try {
+    const [confRes, pplRes, expRes, thrRes] = await Promise.all([
+      sb.from('conferences').select('*').order('name'),
+      sb.from('people').select('*').order('name'),
+      sb.from('expenses').select('*, conferences(name, location, quarter, status), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
+      sb.from('threads').select('*').order('ts', { ascending: true })
+    ]);
+    if (confRes.error) throw confRes.error;
+    if (pplRes.error) throw pplRes.error;
+    if (expRes.error) throw expRes.error;
+    if (thrRes.error) throw thrRes.error;
+    DATA.conferences = confRes.data || [];
+    DATA.people = pplRes.data || [];
+    DATA.expenses = expRes.data || [];
+    DATA.threads = thrRes.data || [];
+    renderAll();
+    renderAdminLists();
+    const now = new Date();
+    document.getElementById('last-sync').textContent = `Synced ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+    if (manual) { btn.textContent = 'Done'; setTimeout(() => { btn.textContent = 'Refresh'; btn.classList.remove('syncing'); }, 1200); }
+    else { btn.textContent = 'Refresh'; btn.classList.remove('syncing'); }
+  } catch(e) {
+    console.error('Load error:', e);
+    btn.textContent = 'Error'; btn.classList.remove('syncing');
+    setTimeout(() => { btn.textContent = 'Refresh'; }, 2000);
+  }
+  document.getElementById('loading').classList.add('hidden');
+}
+
+// ============================================================================
+// THREAD / COMMENT FUNCTIONS (Supabase-backed)
+// ============================================================================
+function getThreads(key) {
+  return DATA.threads.filter(t => t.thread_key === key);
+}
+
+async function addThread(key, text) {
+  const tid = 't_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+  const row = { thread_key: key, thread_id: tid, text: text.trim(), ts: Date.now(), resolved: false, replies: [] };
+  const { data, error } = await sb.from('threads').insert(row).select().single();
+  if (error) { console.error(error); return null; }
+  DATA.threads.push(data);
+  return data;
+}
+
+async function addReply(key, dbId, text) {
+  const t = DATA.threads.find(x => x.id === dbId);
+  if (!t) return;
+  const replies = [...(t.replies || []), { id: 'r_' + Date.now(), text: text.trim(), ts: Date.now() }];
+  const { error } = await sb.from('threads').update({ replies }).eq('id', dbId);
+  if (error) { console.error(error); return; }
+  t.replies = replies;
+}
+
+async function resolveThread(key, dbId, val) {
+  const t = DATA.threads.find(x => x.id === dbId);
+  if (!t) return;
+  const { error } = await sb.from('threads').update({ resolved: val }).eq('id', dbId);
+  if (error) { console.error(error); return; }
+  t.resolved = val;
+}
+
+async function deleteThreadById(dbId) {
+  const { error } = await sb.from('threads').delete().eq('id', dbId);
+  if (error) { console.error(error); return; }
+  DATA.threads = DATA.threads.filter(x => x.id !== dbId);
+}
+
+async function deleteReplyFromThread(dbId, replyId) {
+  const t = DATA.threads.find(x => x.id === dbId);
+  if (!t) return;
+  const replies = (t.replies || []).filter(r => r.id !== replyId);
+  const { error } = await sb.from('threads').update({ replies }).eq('id', dbId);
+  if (error) { console.error(error); return; }
+  t.replies = replies;
+}
+
+// Icons for comments
+const _ICON_MSG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+const _ICON_MSG_FILL = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:block;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+const _ICON_CHECK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function commentBtn(key) {
+  const id = 'cn' + (++_cid);
+  CKEYS[id] = key;
+  const threads = getThreads(key);
+  const n = threads.length;
+  const allResolved = n > 0 && threads.every(t => t.resolved);
+  if (allResolved) {
+    return `<span id="${id}" onclick="event.stopPropagation();openPanel('${id}')" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:2px 8px 2px 6px;font-size:9px;font-weight:700;line-height:1;flex-shrink:0">${_ICON_CHECK}${n}</span>`;
+  }
+  if (n) {
+    return `<span id="${id}" onclick="event.stopPropagation();openPanel('${id}')" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;background:var(--gold);color:#080808;border-radius:10px;padding:2px 8px 2px 6px;font-size:9px;font-weight:800;line-height:1;flex-shrink:0">${_ICON_MSG_FILL}${n}</span>`;
+  }
+  return `<span id="${id}" onclick="event.stopPropagation();openPanel('${id}')" title="Add note" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;cursor:pointer;color:rgba(255,255,255,0.25);border-radius:50%;transition:color 0.15s,background 0.15s;flex-shrink:0" onmouseover="this.style.color='var(--gold)';this.style.background='rgba(245,193,37,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.background='transparent'">${_ICON_MSG}</span>`;
+}
+
+function openPanel(slotId) {
+  _panelSlotId = slotId; _panelKey = CKEYS[slotId]; _panelView = 'list'; _panelThreadId = null;
+  renderPanel();
+  document.getElementById('cpanel').classList.add('open');
+  setTimeout(() => { const ta = document.getElementById('cpanel-ta'); if (ta) ta.focus(); }, 260);
+}
+function closePanel() {
+  document.getElementById('cpanel').classList.remove('open');
+  _panelKey = null; _panelSlotId = null; _panelView = 'list'; _panelThreadId = null;
+}
+function openThread(dbId) { _panelView = 'thread'; _panelThreadId = dbId; renderPanel(); setTimeout(() => { const ta = document.getElementById('cpanel-ta'); if (ta) ta.focus(); }, 50); }
+function panelBack() { _panelView = 'list'; _panelThreadId = null; renderPanel(); }
+
+async function toggleThreadResolve(dbId) {
+  if (!_panelKey) return;
+  const t = DATA.threads.find(x => x.id === dbId);
+  if (!t) return;
+  await resolveThread(_panelKey, dbId, !t.resolved);
+  renderPanel(); refreshAllDots(_panelKey);
+}
+function resolveCurrentThread() { if (_panelKey && _panelThreadId) toggleThreadResolve(_panelThreadId); }
+
+function renderPanel() {
+  if (!_panelKey) return;
+  const parts = _panelKey.split('::');
+  const label = parts[1] || 'Notes';
+  const ctx = parts[0] === 'CONF' ? 'Conference Notes' : parts[0] === 'PERSON' ? 'Person Notes' : 'Notes';
+  const backBtn = document.getElementById('cpanel-back');
+  const resolveBtn = document.getElementById('cpanel-resolve');
+  const titleEl = document.getElementById('cpanel-title');
+  const ctxEl = document.getElementById('cpanel-ctx');
+  const ta = document.getElementById('cpanel-ta');
+  const submitBtn = document.getElementById('cpanel-submit');
+  const isThread = _panelView === 'thread';
+  if (backBtn) backBtn.style.display = isThread ? 'inline-flex' : 'none';
+  if (titleEl) titleEl.textContent = isThread ? 'Thread' : label;
+  if (ctxEl) ctxEl.textContent = isThread ? label + ' - ' + ctx : ctx;
+  if (ta) ta.placeholder = isThread ? 'Reply to this thread...' : 'Start a new thread...';
+  if (submitBtn) submitBtn.textContent = isThread ? 'Reply' : 'Post';
+  if (resolveBtn) {
+    if (isThread && _panelThreadId) {
+      const t = DATA.threads.find(x => x.id === _panelThreadId);
+      resolveBtn.style.display = 'inline-block';
+      resolveBtn.textContent = (t && t.resolved) ? 'Reopen' : 'Resolve';
+      resolveBtn.className = 'cph-resolve' + ((t && t.resolved) ? ' is-resolved' : '');
+    } else { resolveBtn.style.display = 'none'; }
+  }
+  if (_panelView === 'thread') renderThreadDetail(); else renderThreadList();
+}
+
+function renderThreadList() {
+  const threads = getThreads(_panelKey);
+  const list = document.getElementById('cpanel-list');
+  if (!threads.length) { list.innerHTML = '<div class="cpl-empty">No threads yet.<br>Start one below.</div>'; return; }
+  list.innerHTML = threads.map(t => {
+    const preview = t.text.length > 90 ? t.text.slice(0, 90) + '...' : t.text;
+    const rc = t.resolved ? ' ct-resolved' : '';
+    const rl = t.resolved ? 'Reopen' : 'Resolve';
+    const rcls = t.resolved ? 'ct-resolve is-resolved' : 'ct-resolve';
+    const rb = (t.replies||[]).length ? `<span class="ct-reply-count">${(t.replies||[]).length} ${(t.replies||[]).length===1?'reply':'replies'}</span>` : '';
+    const rt = t.resolved ? '<span class="ct-resolved-tag">Resolved</span>' : '';
+    return `<div class="ct${rc}">
+      <div class="ct-first" onclick="openThread('${t.id}')">${esc(preview)}</div>
+      <div class="ct-meta"><span class="ct-time">${fmtTime(t.ts)}</span>${rb}${rt}</div>
+      <div class="ct-actions"><button class="${rcls}" onclick="toggleThreadResolve('${t.id}')">${rl}</button>
+      <span class="ct-del" onclick="removeThread('${t.id}')">X</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderThreadDetail() {
+  const t = DATA.threads.find(x => x.id === _panelThreadId);
+  const list = document.getElementById('cpanel-list');
+  if (!t) { list.innerHTML = '<div class="cpl-empty">Thread not found.</div>'; return; }
+  let html = t.resolved ? '<div class="cpl-resolved-banner"><span>OK</span> Thread resolved</div>' : '';
+  html += `<div class="cd-msg is-original">
+    <div class="cd-msg-meta"><span class="cd-msg-label">Original</span><span class="cd-msg-time">${fmtTime(t.ts)}</span>
+    <span class="cd-msg-del" onclick="removeThread('${t.id}')">X</span></div>
+    <div class="cd-msg-text">${esc(t.text)}</div></div>`;
+  (t.replies||[]).forEach(r => {
+    html += `<div class="cd-msg">
+      <div class="cd-msg-meta"><span class="cd-msg-time">${fmtTime(r.ts)}</span>
+      <span class="cd-msg-del" onclick="removeReply('${t.id}','${r.id}')">X</span></div>
+      <div class="cd-msg-text">${esc(r.text)}</div></div>`;
+  });
+  list.innerHTML = html;
+  list.scrollTop = list.scrollHeight;
+}
+
+async function submitComment() {
+  const ta = document.getElementById('cpanel-ta');
+  if (!ta || !_panelKey) return;
+  const text = ta.value.trim();
+  if (!text) return;
+  ta.value = '';
+  if (_panelView === 'thread' && _panelThreadId) {
+    await addReply(_panelKey, _panelThreadId, text);
+    renderPanel();
+  } else {
+    const newThread = await addThread(_panelKey, text);
+    if (newThread) { refreshAllDots(_panelKey); openThread(newThread.id); return; }
+  }
+  refreshAllDots(_panelKey);
+}
+
+async function removeThread(dbId) {
+  if (!_panelKey) return;
+  await deleteThreadById(dbId);
+  if (_panelView === 'thread') panelBack(); else renderPanel();
+  refreshAllDots(_panelKey);
+}
+
+async function removeReply(dbId, replyId) {
+  if (!_panelKey) return;
+  await deleteReplyFromThread(dbId, replyId);
+  renderPanel();
+}
+
+function refreshAllDots(key) {
+  Object.entries(CKEYS).forEach(([slotId, k]) => { if (k === key) refreshDot(slotId); });
+}
+function refreshDot(slotId) {
+  const el = document.getElementById(slotId);
+  if (!el) return;
+  const key = CKEYS[slotId];
+  const threads = getThreads(key);
+  const n = threads.length;
+  const allResolved = n > 0 && threads.every(t => t.resolved);
+  if (allResolved) {
+    el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;cursor:pointer;background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:2px 8px 2px 6px;font-size:9px;font-weight:700;line-height:1;flex-shrink:0';
+    el.innerHTML = _ICON_CHECK + n;
+  } else if (n) {
+    el.style.cssText = 'display:inline-flex;align-items:center;gap:3px;cursor:pointer;background:var(--gold);color:#080808;border-radius:10px;padding:2px 8px 2px 6px;font-size:9px;font-weight:800;line-height:1;flex-shrink:0';
+    el.innerHTML = _ICON_MSG_FILL + n;
+  } else {
+    el.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;cursor:pointer;color:rgba(255,255,255,0.25);border-radius:50%;transition:color 0.15s,background 0.15s;flex-shrink:0';
+    el.innerHTML = _ICON_MSG;
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if (_panelView === 'thread') { panelBack(); return; } closePanel(); return; }
+  if (e.key === 'Enter' && !e.shiftKey && document.activeElement && document.activeElement.id === 'cpanel-ta') { e.preventDefault(); submitComment(); }
+});
+
+// ============================================================================
+// RENDER: OVERVIEW
+// ============================================================================
+function renderAll() {
+  _cid = 0; // reset comment button IDs
+  const confs = DATA.conferences;
+  const people = DATA.people;
+  const expenses = DATA.expenses;
+
+  // Compute per-conference totals
+  const confTotals = {};
+  expenses.forEach(e => {
+    const cid = e.conference_id;
+    if (!confTotals[cid]) confTotals[cid] = { budgeted: 0, actual: 0 };
+    confTotals[cid].budgeted += Number(e.budgeted) || 0;
+    confTotals[cid].actual += Number(e.actual) || 0;
+  });
+
+  const totalBudget = expenses.reduce((s, e) => s + (Number(e.budgeted) || 0), 0);
+  const totalActual = expenses.reduce((s, e) => s + (Number(e.actual) || 0), 0);
+  const confCount = confs.length;
+
+  // Unique attendees (people who have expenses)
+  const attendeeIds = new Set(expenses.map(e => e.person_id));
+  const attendees = people.filter(p => attendeeIds.has(p.id));
+
+  // KPIs
+  document.getElementById('kpi-total').textContent = fmt(totalBudget);
+  document.getElementById('kpi-conf').textContent = confCount;
+  document.getElementById('kpi-conf-sub').textContent = 'Across Q1 + Q2 2026';
+  document.getElementById('kpi-att').textContent = attendees.length;
+  document.getElementById('kpi-att-sub').textContent = attendees.map(p => p.name).join(' - ');
+  document.getElementById('kpi-avg').textContent = confCount ? fmt(totalBudget / confCount) : '--';
+  document.getElementById('overview-meta').textContent = `${confCount} Conferences - ${attendees.length} Attendees - All Figures Projected`;
+  document.getElementById('conf-pill').textContent = `${confCount} events`;
+
+  // Quarter split
+  const q1Confs = confs.filter(c => c.quarter === 'Q1').map(c => c.id);
+  const q2Confs = confs.filter(c => c.quarter === 'Q2').map(c => c.id);
+  const q1 = expenses.filter(e => q1Confs.includes(e.conference_id)).reduce((s,e) => s + (Number(e.budgeted)||0), 0);
+  const q2 = expenses.filter(e => q2Confs.includes(e.conference_id)).reduce((s,e) => s + (Number(e.budgeted)||0), 0);
+  document.getElementById('q1-total').textContent = fmt(q1);
+  document.getElementById('q2-total').textContent = fmt(q2);
+  document.getElementById('q1-pct').textContent = pct(q1, totalBudget) + ' of total';
+  document.getElementById('q2-pct').textContent = pct(q2, totalBudget) + ' of total';
+
+  // Conference table
+  const confsSorted = [...confs].sort((a,b) => ((confTotals[b.id]||{}).budgeted||0) - ((confTotals[a.id]||{}).budgeted||0));
+  const maxBud = confsSorted.length ? (confTotals[confsSorted[0].id]||{}).budgeted || 1 : 1;
+
+  document.getElementById('conf-table-body').innerHTML = confsSorted.map((c, i) => {
+    const ct = confTotals[c.id] || { budgeted: 0, actual: 0 };
+    const barW = Math.round(ct.budgeted / maxBud * 100);
+    const confExps = expenses.filter(e => e.conference_id === c.id);
+    const attCount = new Set(confExps.map(e => e.person_id)).size;
+
+    // Per-person breakdown
+    const byPerson = {};
+    confExps.forEach(e => {
+      const pName = e.people ? e.people.name : 'Unknown';
+      byPerson[pName] = (byPerson[pName] || 0) + (Number(e.budgeted) || 0);
+    });
+    const byCat = {};
+    confExps.forEach(e => {
+      byCat[e.category] = (byCat[e.category] || 0) + (Number(e.budgeted) || 0);
+    });
+    const byPersonCats = {};
+    confExps.forEach(e => {
+      const pName = e.people ? e.people.name : 'Unknown';
+      if (!byPersonCats[pName]) byPersonCats[pName] = {};
+      byPersonCats[pName][e.category] = (byPersonCats[pName][e.category] || 0) + (Number(e.budgeted) || 0);
+    });
+
+    const firstPerson = Object.keys(byPerson).sort((a,b) => byPerson[b]-byPerson[a])[0];
+    const personRows = Object.entries(byPerson).sort((a,b) => b[1]-a[1]).map(([name, amt]) => {
+      const p = findPerson(name);
+      const pc = p ? personColor(p) : personColor(null);
+      const init = p ? p.initials : name.slice(0,2).toUpperCase();
+      const base = p ? p.base_location : '--';
+      const isFirst = name === firstPerson;
+      return `<div class="drill-person ${isFirst?'drill-person-active':''}" onclick="selectDrillPerson('${esc(name)}',${i})">
+        <div class="drill-person-av" style="background:${pc.bg};border-color:${pc.border};color:${pc.text}">${init}</div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div class="drill-person-name">${esc(name)}</div>
+          <div style="font-size:10px;color:var(--t3)">${esc(base)}</div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="drill-person-amt">${fmt(amt)}</div>
+        <div style="margin-left:10px;cursor:pointer;font-size:9px;color:var(--t3)" onclick="event.stopPropagation();navigatePerson('${esc(name)}')">Profile</div>
+      </div>`;
+    }).join('');
+
+    const catPanels = Object.entries(byPersonCats).map(([name, cats]) => {
+      const entries = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+      const mx = Math.max(...entries.map(e => e[1]), 1);
+      const tot = entries.reduce((s,[,v]) => s+v, 0);
+      const rows = entries.map(([cat, amt]) => {
+        return `<div class="drill-cat">
+          <div class="drill-cat-icon">${CAT_ICONS[cat]||'📦'}</div>
+          <div class="drill-cat-name">${cat}</div>
+          <div class="drill-cat-bar-wrap"><div class="drill-cat-bar" style="width:${Math.round(amt/mx*100)}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
+          <div class="drill-cat-amt">${fmt(amt)}</div>
+        </div>`;
+      }).join('');
+      return `<div class="drill-cat-panel" id="catpanel-${i}-${name.replace(/\s+/g,'_')}" style="display:${name===firstPerson?'block':'none'}">
+        <div style="font-size:10px;color:var(--t3);margin-bottom:10px">${esc(name)}'s total: <strong style="color:var(--gold)">${fmt(tot)}</strong></div>
+        ${rows}
+      </div>`;
+    }).join('');
+
+    const drillHTML = `<tr class="conf-drill" id="drill-${i}" style="display:none">
+      <td colspan="6"><div class="drill-inner">
+        <div>
+          <div class="drill-section-title">Attending (${attCount} people) -- click to see breakdown</div>
+          ${personRows || '<div style="color:var(--t3);font-size:11px">No expense data yet</div>'}
+        </div>
+        <div>
+          <div class="drill-section-title" id="cattitle-${i}">${firstPerson ? esc(firstPerson)+"'s" : ''} Budget by Category</div>
+          ${catPanels || '<div style="color:var(--t3);font-size:11px">No expense data yet</div>'}
+        </div>
+      </div></td>
+    </tr>`;
+
+    return `<tr class="conf-row" onclick="toggleConfRow(${i}, this)">
+      <td class="nm">${esc(c.name)} <span style="font-size:9px;color:var(--t3);font-weight:400;margin-left:4px">▾</span></td>
+      <td class="lc hide-mobile">${esc(c.location||'--')}</td>
+      <td class="at hide-mobile">${attCount}</td>
+      <td class="bu"><div class="bw"><div class="bb"><div class="bf" style="width:${barW}%"></div></div>${fmt(ct.budgeted)}</div></td>
+      <td class="ac">${ct.actual ? fmt(ct.actual) : '<span style="color:var(--t3)">--</span>'}</td>
+      <td onclick="event.stopPropagation()" style="padding:8px 16px;text-align:center">${commentBtn('CONF::'+c.name)}</td>
+    </tr>${drillHTML}`;
+  }).join('');
+
+  // People list (overview sidebar)
+  const personBudgets = {};
+  expenses.forEach(e => {
+    const pName = e.people ? e.people.name : null;
+    if (pName) personBudgets[pName] = (personBudgets[pName] || 0) + (Number(e.budgeted) || 0);
+  });
+  const sortedPeople = Object.entries(personBudgets).sort((a,b) => b[1]-a[1]);
+  document.getElementById('people-list').innerHTML = sortedPeople.map(([name, bud]) => {
+    const p = findPerson(name);
+    const pc = p ? personColor(p) : personColor(null);
+    const init = p ? p.initials : name.slice(0,2).toUpperCase();
+    const base = p ? p.base_location : '--';
+    const evCount = new Set(expenses.filter(e => e.people && e.people.name === name).map(e => e.conference_id)).size;
+    return `<div class="pr" data-person="${esc(name)}" onclick="navigatePerson('${esc(name)}')">
+      <div class="av" style="background:${pc.bg};border-color:${pc.border};color:${pc.text}">${init}</div>
+      <div class="pi"><div class="pn">${esc(name)}</div><div class="pc">${evCount} conf${evCount!==1?'s':''} - ${esc(base)}</div></div>
+      <div class="pa" style="color:${pc.text}">${fmt(bud)}</div>
+      <div onclick="event.stopPropagation()" style="margin-left:8px">${commentBtn('PERSON::'+name)}</div>
+      <div class="pr-arrow">></div>
+    </div>`;
+  }).join('');
+
+  // Category breakdown
+  const catTotals = {};
+  expenses.forEach(e => { if (e.category) catTotals[e.category] = (catTotals[e.category]||0) + (Number(e.budgeted)||0); });
+  const catMax = Math.max(...Object.values(catTotals), 1);
+  document.getElementById('cat-breakdown').innerHTML = Object.entries(catTotals)
+    .sort((a,b) => b[1]-a[1])
+    .map(([cat, amt]) => `<div>
+      <div class="crt"><span class="cn">${cat}</span><span class="cp">${pct(amt, totalBudget)}</span></div>
+      <div class="ca" style="margin-bottom:5px">${fmt(amt)}</div>
+      <div class="cbb"><div class="cbf" style="width:${Math.round(amt/catMax*100)}%"></div></div>
+    </div>`).join('');
+
+  // Budget vs Actual
+  const completedConfs = confs.filter(c => c.status === 'Completed' && (confTotals[c.id]||{}).actual > 0);
+  document.getElementById('actuals-pill').textContent = `${completedConfs.length} completed`;
+  if (!completedConfs.length) {
+    document.getElementById('actuals-content').innerHTML = `<div class="empty">
+      <div class="ei">--</div><div class="et">No actuals recorded yet</div>
+      <div class="eb">Mark a conference as "Completed" and add actual amounts<br>in the <strong>Admin</strong> panel.</div>
+    </div>`;
+  } else {
+    const header = `<div class="actuals-row" style="border-bottom:1px solid var(--border)">
+      <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl)">Conference</div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl);text-align:right">Budget</div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl);text-align:right">Actual</div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl);text-align:right">Variance</div>
+    </div>`;
+    const rows = completedConfs.map(c => {
+      const ct = confTotals[c.id] || { budgeted:0, actual:0 };
+      const v = ct.actual - ct.budgeted;
+      const vcls = v > 0 ? 'over' : v < 0 ? 'under' : 'none';
+      return `<div class="actuals-row">
+        <div class="ar-name">${esc(c.name)}</div>
+        <div class="ar-bud">${fmt(ct.budgeted)}</div>
+        <div class="ar-act">${fmt(ct.actual)}</div>
+        <div class="ar-var ${vcls}">${v !== 0 ? (v>0?'+':'') + fmt(Math.abs(v)) : '--'}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('actuals-content').innerHTML = header + rows;
+  }
+
+  // If person view was active, re-render
+  if (currentPerson) renderProfile(currentPerson, 'profile-panel');
+}
+
+// ============================================================================
+// RENDER: PERSON PROFILE
+// ============================================================================
+function renderProfile(personName, targetId) {
+  const p = findPerson(personName);
+  if (!p) return;
+  const pc = personColor(p);
+  const myExp = DATA.expenses.filter(e => e.people && e.people.name === personName);
+
+  const byConf = {};
+  myExp.forEach(e => {
+    const conf = e.conferences;
+    if (!conf) return;
+    const cName = conf.name;
+    if (!byConf[cName]) byConf[cName] = { cats: {}, loc: conf.location || '', q: conf.quarter || '' };
+    if (e.category) {
+      if (!byConf[cName].cats[e.category]) byConf[cName].cats[e.category] = { budget: 0, actual: 0 };
+      byConf[cName].cats[e.category].budget += Number(e.budgeted) || 0;
+      byConf[cName].cats[e.category].actual += Number(e.actual) || 0;
+    }
+  });
+
+  const totalBudget = Object.values(byConf).reduce((s, ev) => s + Object.values(ev.cats).reduce((ss, c) => ss + c.budget, 0), 0);
+  const confCount = Object.keys(byConf).length;
+  const flightTotal = Object.values(byConf).reduce((s, ev) => s + (ev.cats['Flights']?.budget || 0), 0);
+  const flightPct = totalBudget ? Math.round(flightTotal / totalBudget * 100) : 0;
+
+  const catTotals = {};
+  Object.values(byConf).forEach(ev => { Object.entries(ev.cats).forEach(([cat, val]) => { catTotals[cat] = (catTotals[cat]||0) + val.budget; }); });
+
+  const sortedConfs = Object.entries(byConf).sort((a,b) => {
+    const ta = Object.values(a[1].cats).reduce((s,c) => s+c.budget, 0);
+    const tb = Object.values(b[1].cats).reduce((s,c) => s+c.budget, 0);
+    return tb - ta;
+  });
+
+  const confItems = sortedConfs.map(([confName, ev], i) => {
+    const evBudget = Object.values(ev.cats).reduce((s,c) => s+c.budget, 0);
+    const maxCat = Math.max(...Object.values(ev.cats).map(c => c.budget), 1);
+    const activeCats = [...new Set([...ALL_CATS.filter(cat => ev.cats[cat]), ...Object.keys(ev.cats)])];
+    const catRows = activeCats.sort((a,b) => (ev.cats[b]?.budget||0)-(ev.cats[a]?.budget||0)).map(cat => {
+      const val = ev.cats[cat] || { budget: 0, actual: 0 };
+      const isZero = val.budget === 0;
+      const barW = isZero ? 0 : Math.round(val.budget / maxCat * 100);
+      const actualHtml = val.actual ? `<span class="cat-actual-amt">${fmt(val.actual)}</span>` : `<span class="cat-actual-amt none">No actual</span>`;
+      return `<div class="cat-row" style="${isZero?'opacity:0.6':''}">
+        <div class="cat-icon">${CAT_ICONS[cat]||'📦'}</div>
+        <div class="cat-info">
+          <div class="cat-top"><span class="cat-name-sm">${cat}</span>
+            <div class="cat-amounts">${isZero?'':`<span class="cat-budget-amt">${fmt(val.budget)}</span>${actualHtml}`}
+              ${isZero?'<span style="font-size:9px;color:var(--green);font-weight:600">$0</span>':''}
+            </div>
+          </div>
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${barW}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="conf-item" id="pci-${i}">
+      <div class="conf-item-header" onclick="toggleConf('pci-${i}')">
+        <div class="cih-left"><div><div class="cih-name">${esc(confName)}</div><div class="cih-loc">${esc(ev.loc||'TBD')} - ${ev.q}</div></div></div>
+        <div class="cih-budget">${fmt(evBudget)}</div>
+        <div class="cih-arrow">▾</div>
+      </div>
+      <div class="conf-cats" style="display:none">${catRows}
+        <div class="conf-total-row"><span class="ctl">Conference Total</span><span class="ctv">${fmt(evBudget)}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const stackedBar = Object.entries(catTotals).map(([cat, amt]) => {
+    const w = totalBudget ? amt / totalBudget * 100 : 0;
+    return `<div style="width:${w}%;background:${CAT_COLORS[cat]||'#888'}" title="${cat}: ${fmt(amt)}"></div>`;
+  }).join('');
+  const legend = Object.entries(catTotals).map(([cat, amt]) => {
+    const pp = totalBudget ? Math.round(amt/totalBudget*100) : 0;
+    return `<div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2)">
+      <span style="width:8px;height:8px;border-radius:2px;background:${CAT_COLORS[cat]||'#888'};display:inline-block;flex-shrink:0"></span>
+      ${cat}: <strong style="color:var(--text)">${fmt(amt)}</strong> <span style="color:var(--t3)">(${pp}%)</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById(targetId).innerHTML = `
+    <div class="profile-header" style="border-color:${pc.border}">
+      <div class="profile-avatar" style="background:${pc.bg};border-color:${pc.border};color:${pc.text}">${p.initials}</div>
+      <div class="profile-info">
+        <div class="profile-name">${esc(p.name)}</div>
+        <div class="profile-base"><span>${esc(p.base_location||'')}</span><span class="dot"></span><span style="color:var(--lbl)">${esc(p.role||'')}</span></div>
+        <div class="profile-stats">
+          <div class="ps"><div class="ps-val">${fmt(totalBudget)}</div><div class="ps-lbl">Total Budget</div></div>
+          <div class="ps"><div class="ps-val">${confCount}</div><div class="ps-lbl">Conferences</div></div>
+          <div class="ps"><div class="ps-val" style="color:${flightPct<20?'var(--green)':'var(--gold)'}">${fmt(flightTotal)}</div><div class="ps-lbl">Flights (${flightPct}%)</div></div>
+          <div class="ps"><div class="ps-val">${confCount?fmt(Math.round(totalBudget/confCount)):'--'}</div><div class="ps-lbl">Avg / Event</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:12px 18px;border-left:2px solid ${pc.border};display:flex;align-items:center;gap:10px">
+      <span style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);opacity:0.7;flex:1">Person Notes</span>
+      ${commentBtn('PERSON::'+p.name)}
+    </div>
+    <div class="card" style="padding:14px 18px;">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--lbl);margin-bottom:8px">Spend context</div>
+      <div style="font-size:11.5px;color:var(--t2);line-height:1.7">${esc(p.note||'No notes available.')}</div>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">${legend}</div>
+      <div style="margin-top:10px;display:flex;height:6px;border-radius:4px;overflow:hidden;gap:1px">${stackedBar}</div>
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--lbl);margin-bottom:10px">Conference Breakdown -- click to expand</div>
+      <div class="conf-breakdown">${confItems}</div>
+    </div>`;
+}
+
+// ============================================================================
+// INTERACTIONS
+// ============================================================================
+function selectDrillPerson(name, confIdx) {
+  document.querySelectorAll(`[id^="catpanel-${confIdx}-"]`).forEach(p => p.style.display = 'none');
+  const panel = document.getElementById(`catpanel-${confIdx}-${name.replace(/\s+/g,'_')}`);
+  if (panel) panel.style.display = 'block';
+  const title = document.getElementById(`cattitle-${confIdx}`);
+  if (title) title.textContent = `${name}'s Budget by Category`;
+  const drill = document.getElementById(`drill-${confIdx}`);
+  if (drill) {
+    drill.querySelectorAll('.drill-person').forEach(p => p.classList.remove('drill-person-active'));
+    drill.querySelectorAll('.drill-person').forEach(p => {
+      if (p.querySelector('.drill-person-name')?.textContent === name) p.classList.add('drill-person-active');
+    });
+  }
+}
+
+function toggleConfRow(i, row) {
+  const drill = document.getElementById('drill-' + i);
+  const open = row.classList.toggle('open');
+  drill.style.display = open ? 'table-row' : 'none';
+}
+
+function toggleConf(id) {
+  const item = document.getElementById(id);
+  const cats = item.querySelector('.conf-cats');
+  const open = item.classList.toggle('open');
+  cats.style.display = open ? 'flex' : 'none';
+  if (open) cats.style.flexDirection = 'column';
+}
+
+function navigatePerson(name) {
+  currentPerson = name;
+  // In overview, show inline profile
+  document.getElementById('ov-conf-view').style.display = 'none';
+  document.getElementById('ov-profile-view').style.display = 'block';
+  document.querySelectorAll('#people-list .pr').forEach(el => {
+    el.classList.toggle('pr-active', el.dataset.person === name);
+  });
+  renderProfile(name, 'profile-panel');
+}
+
+function showConferences() {
+  currentPerson = null;
+  document.getElementById('ov-conf-view').style.display = '';
+  document.getElementById('ov-profile-view').style.display = 'none';
+  document.querySelectorAll('#people-list .pr').forEach(el => el.classList.remove('pr-active'));
+}
+
+// ============================================================================
+// ROUTING
+// ============================================================================
+function navigate(page, skipHash) {
+  document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; p.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+  if (page.startsWith('person/')) {
+    const name = decodeURIComponent(page.replace('person/', ''));
+    document.getElementById('page-overview').style.display = 'block';
+    document.getElementById('page-overview').classList.add('active');
+    document.querySelector('[data-page="overview"]').classList.add('active');
+    navigatePerson(name);
+  } else {
+    const el = document.getElementById('page-' + page);
+    if (el) { el.style.display = 'block'; el.classList.add('active'); }
+    const tab = document.querySelector(`[data-page="${page}"]`);
+    if (tab) tab.classList.add('active');
+    if (page === 'overview') showConferences();
+    if (page === 'admin') renderAdminLists();
+  }
+  if (!skipHash) window.location.hash = '#' + page;
+}
+
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.slice(1) || 'overview';
+  navigate(hash, true);
+});
+
+// ============================================================================
+// ADMIN: CRUD
+// ============================================================================
+async function addConference() {
+  const name = document.getElementById('adm-conf-name').value.trim();
+  const loc = document.getElementById('adm-conf-loc').value.trim();
+  const q = document.getElementById('adm-conf-q').value;
+  if (!name) return;
+  const { error } = await sb.from('conferences').insert({ name, location: loc, quarter: q });
+  if (error) { alert('Error: ' + error.message); return; }
+  document.getElementById('adm-conf-name').value = '';
+  document.getElementById('adm-conf-loc').value = '';
+  await loadAllData();
+}
+
+async function addPerson() {
+  const name = document.getElementById('adm-person-name').value.trim();
+  const init = document.getElementById('adm-person-init').value.trim().toUpperCase();
+  const color = document.getElementById('adm-person-color').value;
+  const base = document.getElementById('adm-person-base').value.trim();
+  const role = document.getElementById('adm-person-role').value.trim();
+  if (!name || !init) return;
+  const { error } = await sb.from('people').insert({
+    name, initials: init, base_location: base, role,
+    color_text: color, color_bg: hexToRgba(color, 0.12), color_border: hexToRgba(color, 0.3)
+  });
+  if (error) { alert('Error: ' + error.message); return; }
+  document.getElementById('adm-person-name').value = '';
+  document.getElementById('adm-person-init').value = '';
+  document.getElementById('adm-person-base').value = '';
+  document.getElementById('adm-person-role').value = '';
+  await loadAllData();
+}
+
+async function addExpense() {
+  const confId = document.getElementById('adm-exp-conf').value;
+  const personId = document.getElementById('adm-exp-person').value;
+  const cat = document.getElementById('adm-exp-cat').value;
+  const bud = Number(document.getElementById('adm-exp-bud').value) || 0;
+  const act = Number(document.getElementById('adm-exp-act').value) || 0;
+  if (!confId || !personId) return;
+  const conf = DATA.conferences.find(c => c.id === confId);
+  const { error } = await sb.from('expenses').insert({
+    conference_id: confId, person_id: personId, category: cat,
+    budgeted: bud, actual: act, quarter: conf ? conf.quarter : null
+  });
+  if (error) { alert('Error: ' + error.message); return; }
+  document.getElementById('adm-exp-bud').value = '';
+  document.getElementById('adm-exp-act').value = '';
+  await loadAllData();
+}
+
+async function deleteConference(id) {
+  if (!confirm('Delete this conference and all its expenses?')) return;
+  await sb.from('conferences').delete().eq('id', id);
+  await loadAllData();
+}
+async function deletePerson(id) {
+  if (!confirm('Delete this person and all their expenses?')) return;
+  await sb.from('people').delete().eq('id', id);
+  await loadAllData();
+}
+async function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  await sb.from('expenses').delete().eq('id', id);
+  await loadAllData();
+}
+
+async function updateConfStatus(id, status) {
+  await sb.from('conferences').update({ status }).eq('id', id);
+  await loadAllData();
+}
+
+function renderAdminLists() {
+  // Conferences
+  document.getElementById('adm-conf-list').innerHTML = DATA.conferences.map(c => `
+    <div class="admin-list-item">
+      <span class="name">${esc(c.name)}</span>
+      <span class="sub">${esc(c.location||'')} - ${c.quarter}</span>
+      <button onclick="updateConfStatus('${c.id}','${c.status==='Completed'?'Planning':'Completed'}')">${c.status==='Completed'?'Reopen':'Complete'}</button>
+      <button class="del" onclick="deleteConference('${c.id}')">Delete</button>
+    </div>`).join('');
+
+  // People
+  document.getElementById('adm-person-list').innerHTML = DATA.people.map(p => `
+    <div class="admin-list-item">
+      <div class="av" style="background:${p.color_bg};border-color:${p.color_border};color:${p.color_text};width:24px;height:24px;font-size:8px">${p.initials}</div>
+      <span class="name">${esc(p.name)}</span>
+      <span class="sub">${esc(p.role||'')} - ${esc(p.base_location||'')}</span>
+      <button class="del" onclick="deletePerson('${p.id}')">Delete</button>
+    </div>`).join('');
+
+  // Expenses
+  document.getElementById('adm-exp-list').innerHTML = DATA.expenses.slice(-50).reverse().map(e => {
+    const cName = e.conferences ? e.conferences.name : '?';
+    const pName = e.people ? e.people.name : '?';
+    return `<div class="admin-list-item">
+      <span class="name" style="font-size:11px">${esc(cName)}</span>
+      <span class="sub">${esc(pName)} - ${e.category}</span>
+      <span style="font-size:11px;color:var(--gold);font-weight:600">${fmt(e.budgeted)}</span>
+      ${e.actual ? `<span style="font-size:11px;color:var(--green);font-weight:600">${fmt(e.actual)}</span>` : ''}
+      <button class="del" onclick="deleteExpense('${e.id}')">Del</button>
+    </div>`;
+  }).join('');
+
+  // Dropdowns
+  const confSel = document.getElementById('adm-exp-conf');
+  confSel.innerHTML = DATA.conferences.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  const pplSel = document.getElementById('adm-exp-person');
+  pplSel.innerHTML = DATA.people.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+}
+
+// ============================================================================
+// BULK IMPORT FROM GOOGLE SHEETS
+// ============================================================================
+function parseSheetJSON(raw) {
+  const json = JSON.parse(raw.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows
+    .filter(r => r && r.c && r.c[0] && r.c[0].v)
+    .map(r => {
+      const obj = {};
+      cols.forEach((col, i) => {
+        const cell = r.c[i];
+        obj[col] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+      });
+      return obj;
+    });
+}
+
+async function bulkImport() {
+  const btn = document.getElementById('import-btn');
+  const status = document.getElementById('import-status');
+  btn.disabled = true; btn.textContent = 'Importing...';
+  status.innerHTML = 'Fetching data from Google Sheets...';
+
+  try {
+    // Fetch both sheets
+    const [confRaw, expRaw] = await Promise.all([
+      fetch(SHEET_API('Conferences')).then(r => r.text()),
+      fetch(SHEET_API('Expenses')).then(r => r.text())
+    ]);
+
+    const sheetConfs = parseSheetJSON(confRaw).filter(c => {
+      const n = (c['Conference Name']||'').toString().trim().toUpperCase();
+      return n && n !== 'TOTALS' && n !== 'TOTAL';
+    });
+    const sheetExps = parseSheetJSON(expRaw);
+
+    status.innerHTML += `<br><span class="ok">Found ${sheetConfs.length} conferences, ${sheetExps.length} expenses</span>`;
+
+    // Build person lookup from current DB
+    const peopleMap = {};
+    DATA.people.forEach(p => { peopleMap[p.name] = p.id; });
+
+    // Insert conferences (upsert by name)
+    let confInserted = 0;
+    const confMap = {};
+    for (const c of sheetConfs) {
+      const name = (c['Conference Name']||'').trim();
+      if (!name) continue;
+      const existing = DATA.conferences.find(x => x.name === name);
+      if (existing) { confMap[name] = existing.id; continue; }
+      const { data, error } = await sb.from('conferences').insert({
+        name,
+        location: c['Location'] || '',
+        quarter: c['Quarter'] || 'Q1',
+        status: (c['Status']||'').includes('Completed') ? 'Completed' : 'Planning'
+      }).select().single();
+      if (error) { status.innerHTML += `<br><span class="err">Conf error: ${error.message} (${name})</span>`; continue; }
+      confMap[name] = data.id;
+      confInserted++;
+    }
+    status.innerHTML += `<br><span class="ok">${confInserted} new conferences inserted</span>`;
+
+    // Insert expenses
+    let expInserted = 0;
+    for (const e of sheetExps) {
+      const confName = (e['Conference']||'').trim();
+      const personName = (e['Attendee']||'').trim();
+      const cat = (e['Category']||'').trim();
+      if (!confName || !personName || !cat) continue;
+      const confId = confMap[confName];
+      const personId = peopleMap[personName];
+      if (!confId || !personId) { continue; }
+      const { error } = await sb.from('expenses').insert({
+        conference_id: confId, person_id: personId, category: cat,
+        budgeted: Number(e['Budgeted Amount']) || 0,
+        actual: Number(e['Actual Amount']) || 0,
+        quarter: e['Quarter'] || null
+      });
+      if (error) { continue; } // skip duplicates
+      expInserted++;
+    }
+    status.innerHTML += `<br><span class="ok">${expInserted} expenses inserted</span>`;
+    status.innerHTML += `<br><span class="ok">Import complete. Refreshing...</span>`;
+    await loadAllData();
+  } catch(err) {
+    status.innerHTML += `<br><span class="err">Import failed: ${err.message}</span>`;
+    console.error(err);
+  }
+  btn.disabled = false; btn.textContent = 'Import from Google Sheets';
+}
+
+// ============================================================================
+// REALTIME SUBSCRIPTIONS
+// ============================================================================
+function setupRealtime() {
+  if (!sb) return;
+  const channel = sb.channel('db-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'threads' }, () => { loadAllData(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => { loadAllData(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'conferences' }, () => { loadAllData(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'people' }, () => { loadAllData(); })
+    .subscribe();
+}
+
+// ============================================================================
+// INIT
+// ============================================================================
+async function startApp() {
+  document.getElementById('main-nav').style.display = 'flex';
+  document.getElementById('loading').classList.remove('hidden');
+  await testConnection();
+  await loadAllData();
+  setupRealtime();
+  const hash = window.location.hash.slice(1) || 'overview';
+  navigate(hash, true);
+}
+
+// Boot
+if (initSupabase()) {
+  document.getElementById('setup-overlay').classList.add('hidden');
+  startApp();
+}
+</script>
+</body>
+</html>
