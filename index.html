@@ -166,7 +166,6 @@ td.lc { font-size:10.5px; color:var(--t3); }
 td.at { font-size:10.5px; color:var(--t2); }
 td.bu { text-align:right; color:var(--gold); font-weight:600; font-size:12px; white-space:nowrap; }
 td.ac { text-align:right; color:var(--green); font-weight:600; font-size:12px; white-space:nowrap; }
-td.st { text-align:right; }
 .bw { display:flex; align-items:center; gap:7px; justify-content:flex-end; }
 .bb { width:54px; height:3px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; flex-shrink:0; }
 .bf { height:100%; border-radius:3px; background:linear-gradient(90deg,#F5C125,#ffd166); box-shadow:0 0 6px rgba(245,193,37,0.5); }
@@ -606,6 +605,25 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
 .date-popover-actions .dp-clear { background:none; border:1px solid rgba(244,63,94,0.2); color:var(--t3); margin-right:auto; }
 .date-popover-actions .dp-clear:hover { border-color:rgba(244,63,94,0.4); color:var(--red); }
 
+/* LOCATION AUTOCOMPLETE */
+.loc-autocomplete { position:relative; }
+.loc-dropdown {
+  position:absolute; top:100%; left:0; right:0; z-index:9600;
+  background:var(--card); border:1px solid rgba(245,193,37,0.2); border-top:none;
+  border-radius:0 0 6px 6px; max-height:200px; overflow-y:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5); scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.1) transparent;
+}
+.loc-dropdown::-webkit-scrollbar { width:4px; }
+.loc-dropdown::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+.loc-dropdown-item {
+  padding:7px 12px; font-size:11px; color:var(--t2); cursor:pointer; transition:all 0.1s;
+  display:flex; align-items:center; gap:8px;
+}
+.loc-dropdown-item:hover, .loc-dropdown-item.active { background:rgba(245,193,37,0.08); color:var(--text); }
+.loc-dropdown-item .loc-city { color:var(--text); font-weight:600; }
+.loc-dropdown-item .loc-country { color:var(--t3); font-size:10px; }
+.loc-dropdown-item .loc-dot { width:4px; height:4px; border-radius:50%; background:var(--gold); opacity:0.5; flex-shrink:0; }
+
 /* Explore stats bar */
 .explore-stats { display:flex; gap:20px; margin-bottom:18px; padding:14px 20px; background:var(--card); border:1px solid rgba(245,193,37,0.08); border-radius:6px; }
 .explore-stat { display:flex; flex-direction:column; gap:2px; }
@@ -724,10 +742,6 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
             <option value="Q1">Q1</option><option value="Q2">Q2</option>
             <option value="Q3">Q3</option><option value="Q4">Q4</option>
           </select>
-          <select id="filter-status" onchange="applyFilters()">
-            <option value="">All Status</option>
-            <option value="Planning">Planning</option><option value="Completed">Completed</option>
-          </select>
           <select id="filter-person" onchange="applyFilters()">
             <option value="">All People</option>
           </select>
@@ -757,8 +771,8 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
           </div>
           <div class="card">
             <div class="ch">
-              <div><span class="ch-accent"></span><div class="ch-lbl">Post-Event Tracking</div><div class="ch-title">Budget vs. Actual</div></div>
-              <span class="pill" id="actuals-pill">0 completed</span>
+              <div><span class="ch-accent"></span><div class="ch-lbl">Spend Tracking</div><div class="ch-title">Budget vs. Actual</div></div>
+              <span class="pill" id="actuals-pill">0 tracked</span>
             </div>
             <div id="actuals-content"></div>
           </div>
@@ -792,17 +806,25 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
       <h3>Add Conference</h3>
       <label>Name</label>
       <input class="admin-input" id="adm-conf-name" placeholder="e.g. Money 20/20">
-      <label>Location</label>
-      <input class="admin-input" id="adm-conf-loc" placeholder="e.g. Las Vegas, NV">
-      <label>Quarter</label>
-      <select class="admin-select" id="adm-conf-q">
-        <option value="Q1">Q1</option><option value="Q2">Q2</option>
-        <option value="Q3">Q3</option><option value="Q4">Q4</option>
-      </select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label>Location</label><input class="admin-input" id="adm-conf-loc" placeholder="e.g. Las Vegas, NV"></div>
+        <div><label>Quarter</label>
+          <select class="admin-select" id="adm-conf-q">
+            <option value="Q1">Q1</option><option value="Q2">Q2</option>
+            <option value="Q3">Q3</option><option value="Q4">Q4</option>
+          </select>
+        </div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <div><label>Start Date</label><input class="admin-input" id="adm-conf-start" type="date"></div>
         <div><label>End Date</label><input class="admin-input" id="adm-conf-end" type="date"></div>
       </div>
+      <label>Website URL</label>
+      <input class="admin-input" id="adm-conf-url" placeholder="https://...">
+      <label>Thumbnail URL</label>
+      <input class="admin-input" id="adm-conf-thumb" placeholder="https://... (image URL)">
+      <label>Description</label>
+      <textarea class="admin-input" id="adm-conf-desc" placeholder="Brief description..." style="resize:vertical;min-height:48px;font-family:'DM Sans',sans-serif;line-height:1.5"></textarea>
       <button class="admin-btn" onclick="addConference()">Add Conference</button>
     </div>
 
@@ -1011,7 +1033,7 @@ let confSortDir = 'desc';
 let _cid = 0;
 const CKEYS = {};
 let _panelKey = null, _panelSlotId = null, _panelView = 'list', _panelThreadId = null;
-let _filterSearch = '', _filterQuarter = '', _filterStatus = '', _filterPerson = '';
+let _filterSearch = '', _filterQuarter = '', _filterPerson = '';
 
 // ============================================================================
 // HELPERS
@@ -1159,7 +1181,7 @@ async function softRefresh() {
     const [confRes, pplRes, expRes, thrRes] = await Promise.all([
       sb.from('conferences').select('*').order('name'),
       sb.from('people').select('*').order('name'),
-      sb.from('expenses').select('*, conferences(name, location, quarter, status, start_date, end_date), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
+      sb.from('expenses').select('*, conferences(name, location, quarter, start_date, end_date, url, thumbnail, description), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
       sb.from('threads').select('*').order('ts', { ascending: true })
     ]);
     if (confRes.error) throw confRes.error;
@@ -1196,7 +1218,7 @@ async function loadAllData(manual = false) {
     const [confRes, pplRes, expRes, thrRes] = await Promise.all([
       sb.from('conferences').select('*').order('name'),
       sb.from('people').select('*').order('name'),
-      sb.from('expenses').select('*, conferences(name, location, quarter, status, start_date, end_date), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
+      sb.from('expenses').select('*, conferences(name, location, quarter, start_date, end_date, url, thumbnail, description), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
       sb.from('threads').select('*').order('ts', { ascending: true })
     ]);
     if (confRes.error) throw confRes.error;
@@ -1440,7 +1462,6 @@ document.addEventListener('keydown', e => {
 function applyFilters() {
   _filterSearch = (document.getElementById('filter-search')?.value || '').toLowerCase();
   _filterQuarter = document.getElementById('filter-quarter')?.value || '';
-  _filterStatus = document.getElementById('filter-status')?.value || '';
   _filterPerson = document.getElementById('filter-person')?.value || '';
   renderAll();
 }
@@ -1457,7 +1478,6 @@ function getFilteredConfs() {
   let confs = DATA.conferences;
   if (_filterSearch) confs = confs.filter(c => c.name.toLowerCase().includes(_filterSearch));
   if (_filterQuarter) confs = confs.filter(c => c.quarter === _filterQuarter);
-  if (_filterStatus) confs = confs.filter(c => (c.status || 'Planning') === _filterStatus);
   if (_filterPerson) {
     const personConfIds = new Set(DATA.expenses.filter(e => e.person_id === _filterPerson).map(e => e.conference_id));
     confs = confs.filter(c => personConfIds.has(c.id));
@@ -1647,7 +1667,7 @@ function renderAll() {
     const qOpts = ['Q1','Q2','Q3','Q4'];
 
     return `<tr class="conf-row" onclick="toggleConfRow(${i}, this)">
-      <td class="nm" onclick="event.stopPropagation()"><span class="editable" onclick="editConfField('${c.id}','name','${esc(c.name)}',this)">${esc(c.name)}</span> <span style="font-size:9px;color:var(--t3);font-weight:400;margin-left:4px" onclick="event.stopPropagation();this.parentElement.parentElement.click()">▾</span></td>
+      <td class="nm" onclick="event.stopPropagation()"><span class="editable" onclick="editConfField('${c.id}','name','${esc(c.name)}',this)">${esc(c.name)}</span>${c.url ? ` <a href="${esc(c.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--t3);font-size:11px;margin-left:4px;text-decoration:none;transition:color 0.15s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--t3)'" title="${esc(c.url)}">&#8599;</a>` : ''} <span style="font-size:9px;color:var(--t3);font-weight:400;margin-left:4px" onclick="event.stopPropagation();this.parentElement.parentElement.click()">▾</span></td>
       <td class="dt hide-mobile" onclick="event.stopPropagation()" style="white-space:nowrap;font-size:11px;color:var(--t2)"><span class="editable" onclick="editConfDate('${c.id}','${c.start_date||''}','${c.end_date||''}',this)">${fmtDateRange(c.start_date, c.end_date)}</span></td>
       <td class="lc hide-mobile" onclick="event.stopPropagation()"><span class="editable" onclick="editConfField('${c.id}','location','${esc(c.location||'')}',this)">${esc(c.location||'--')}</span></td>
       <td class="at hide-mobile" onclick="event.stopPropagation()"><span class="editable" onclick="editConfQuarter('${c.id}','${c.quarter||'Q1'}',this)">${c.quarter||'--'}</span></td>
@@ -1692,12 +1712,12 @@ function renderAll() {
     </div>`).join('');
 
   // Budget vs Actual
-  const completedConfs = confs.filter(c => c.status === 'Completed' && (confTotals[c.id]||{}).actual > 0);
-  document.getElementById('actuals-pill').textContent = `${completedConfs.length} completed`;
-  if (!completedConfs.length) {
+  const trackedConfs = confs.filter(c => (confTotals[c.id]||{}).actual > 0);
+  document.getElementById('actuals-pill').textContent = `${trackedConfs.length} tracked`;
+  if (!trackedConfs.length) {
     document.getElementById('actuals-content').innerHTML = `<div class="empty">
       <div class="ei">--</div><div class="et">No actuals recorded yet</div>
-      <div class="eb">Mark a conference as "Completed" and add actual amounts<br>in the <strong>Admin</strong> panel.</div>
+      <div class="eb">Add actual amounts to expenses to track<br><strong>Budget vs. Actual</strong> variance.</div>
     </div>`;
   } else {
     const header = `<div class="actuals-row" style="border-bottom:1px solid var(--border)">
@@ -1706,7 +1726,7 @@ function renderAll() {
       <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl);text-align:right">Actual</div>
       <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lbl);text-align:right">Variance</div>
     </div>`;
-    const rows = completedConfs.map(c => {
+    const rows = trackedConfs.map(c => {
       const ct = confTotals[c.id] || { budgeted:0, actual:0 };
       const v = ct.actual - ct.budgeted;
       const vcls = v > 0 ? 'over' : v < 0 ? 'under' : 'none';
@@ -1875,6 +1895,124 @@ function selectDrillPerson(name, confIdx) {
 }
 
 // ============================================================================
+// LOCATION AUTOCOMPLETE
+// ============================================================================
+const CONF_CITIES = [
+  // North America
+  'New York, NY, USA','San Francisco, CA, USA','Las Vegas, NV, USA','Austin, TX, USA','Miami, FL, USA',
+  'Los Angeles, CA, USA','Chicago, IL, USA','Boston, MA, USA','Denver, CO, USA','Seattle, WA, USA',
+  'Nashville, TN, USA','Atlanta, GA, USA','Dallas, TX, USA','San Diego, CA, USA','Washington, DC, USA',
+  'Orlando, FL, USA','Houston, TX, USA','Phoenix, AZ, USA','Salt Lake City, UT, USA','Portland, OR, USA',
+  'Minneapolis, MN, USA','Philadelphia, PA, USA','Fort Lauderdale, FL, USA','San Jose, CA, USA',
+  'Toronto, ON, Canada','Montreal, QC, Canada','Vancouver, BC, Canada','Calgary, AB, Canada',
+  'Mexico City, Mexico','Cancun, Mexico',
+  // Europe
+  'London, UK','Paris, France','Berlin, Germany','Amsterdam, Netherlands','Barcelona, Spain',
+  'Madrid, Spain','Lisbon, Portugal','Porto, Portugal','Dublin, Ireland','Zurich, Switzerland',
+  'Geneva, Switzerland','Vienna, Austria','Munich, Germany','Frankfurt, Germany','Milan, Italy',
+  'Rome, Italy','Copenhagen, Denmark','Stockholm, Sweden','Oslo, Norway','Helsinki, Finland',
+  'Brussels, Belgium','Prague, Czech Republic','Warsaw, Poland','Budapest, Hungary',
+  'Edinburgh, UK','Manchester, UK','Athens, Greece','Istanbul, Turkey','Tallinn, Estonia',
+  'Riga, Latvia','Ljubljana, Slovenia','Bucharest, Romania','Nicosia, Cyprus','Limassol, Cyprus',
+  // Middle East & Africa
+  'Dubai, UAE','Abu Dhabi, UAE','Riyadh, Saudi Arabia','Tel Aviv, Israel','Doha, Qatar',
+  'Bahrain, Bahrain','Cape Town, South Africa','Johannesburg, South Africa','Nairobi, Kenya',
+  'Lagos, Nigeria','Marrakech, Morocco',
+  // Asia Pacific
+  'Singapore, Singapore','Hong Kong, China','Tokyo, Japan','Seoul, South Korea','Bangkok, Thailand',
+  'Bali, Indonesia','Jakarta, Indonesia','Kuala Lumpur, Malaysia','Sydney, Australia',
+  'Melbourne, Australia','Auckland, New Zealand','Mumbai, India','Bangalore, India',
+  'New Delhi, India','Shanghai, China','Beijing, China','Taipei, Taiwan','Manila, Philippines',
+  'Ho Chi Minh City, Vietnam','Shenzhen, China',
+  // South America
+  'Sao Paulo, Brazil','Buenos Aires, Argentina','Bogota, Colombia','Lima, Peru','Santiago, Chile',
+  'Medellin, Colombia','Panama City, Panama','San Juan, Puerto Rico'
+];
+
+let _locDropdown = null;
+let _locActiveIdx = -1;
+
+function attachLocationAutocomplete(input) {
+  input.setAttribute('autocomplete', 'off');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'loc-autocomplete';
+  input.parentNode.insertBefore(wrapper, input);
+  wrapper.appendChild(input);
+
+  input.addEventListener('input', () => showLocSuggestions(input, wrapper));
+  input.addEventListener('focus', () => { if (input.value.length > 0) showLocSuggestions(input, wrapper); });
+  input.addEventListener('keydown', (e) => {
+    if (!_locDropdown) return;
+    const items = _locDropdown.querySelectorAll('.loc-dropdown-item');
+    if (e.key === 'ArrowDown') { e.preventDefault(); _locActiveIdx = Math.min(_locActiveIdx + 1, items.length - 1); highlightLocItem(items); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); _locActiveIdx = Math.max(_locActiveIdx - 1, 0); highlightLocItem(items); }
+    else if (e.key === 'Enter' && _locActiveIdx >= 0 && items[_locActiveIdx]) {
+      e.preventDefault();
+      input.value = items[_locActiveIdx].dataset.value;
+      closeLocDropdown();
+      input.dispatchEvent(new Event('change'));
+    }
+    else if (e.key === 'Escape') { closeLocDropdown(); }
+  });
+}
+
+function showLocSuggestions(input, wrapper) {
+  closeLocDropdown();
+  const q = input.value.toLowerCase().trim();
+  if (!q) return;
+  const matches = CONF_CITIES.filter(c => c.toLowerCase().includes(q)).slice(0, 8);
+  if (!matches.length) return;
+
+  _locDropdown = document.createElement('div');
+  _locDropdown.className = 'loc-dropdown';
+  _locActiveIdx = -1;
+
+  matches.forEach((city, i) => {
+    const parts = city.split(', ');
+    const item = document.createElement('div');
+    item.className = 'loc-dropdown-item';
+    item.dataset.value = city;
+    item.innerHTML = `<span class="loc-dot"></span><span class="loc-city">${parts[0]}</span><span class="loc-country">${parts.slice(1).join(', ')}</span>`;
+    item.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      input.value = city;
+      closeLocDropdown();
+      input.dispatchEvent(new Event('change'));
+      input.blur();
+    });
+    _locDropdown.appendChild(item);
+  });
+
+  wrapper.appendChild(_locDropdown);
+
+  // Close on outside click
+  setTimeout(() => document.addEventListener('mousedown', _locOutsideClick), 10);
+}
+
+function highlightLocItem(items) {
+  items.forEach((it, i) => it.classList.toggle('active', i === _locActiveIdx));
+  if (items[_locActiveIdx]) items[_locActiveIdx].scrollIntoView({ block: 'nearest' });
+}
+
+function _locOutsideClick(e) {
+  if (_locDropdown && !_locDropdown.contains(e.target)) closeLocDropdown();
+}
+
+function closeLocDropdown() {
+  if (_locDropdown) { _locDropdown.remove(); _locDropdown = null; }
+  _locActiveIdx = -1;
+  document.removeEventListener('mousedown', _locOutsideClick);
+}
+
+// Attach to static location inputs on load
+document.addEventListener('DOMContentLoaded', () => {
+  ['adm-conf-loc', 'exp-m-location', 'adm-person-base'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) attachLocationAutocomplete(el);
+  });
+});
+
+// ============================================================================
 // INLINE EDITING
 // ============================================================================
 function editConfField(confId, field, currentVal, el) {
@@ -1883,16 +2021,21 @@ function editConfField(confId, field, currentVal, el) {
   input.value = currentVal === '--' ? '' : currentVal;
   input.style.width = Math.max(80, el.offsetWidth + 20) + 'px';
   el.replaceWith(input);
+  if (field === 'location') attachLocationAutocomplete(input);
   input.focus();
   input.select();
   const save = async () => {
+    closeLocDropdown();
     const val = input.value.trim();
     const { error } = await sb.from('conferences').update({ [field]: val || null }).eq('id', confId);
     if (error) { alert('Error: ' + error.message); }
     await softRefresh();
   };
-  input.addEventListener('blur', save);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.removeEventListener('blur', save); softRefresh(); } });
+  input.addEventListener('blur', () => { setTimeout(save, 100); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && _locActiveIdx < 0) input.blur();
+    if (e.key === 'Escape') { closeLocDropdown(); input.removeEventListener('blur', save); softRefresh(); }
+  });
 }
 
 // --- Date Picker Popover ---
@@ -2198,13 +2341,19 @@ async function addConference() {
   const q = document.getElementById('adm-conf-q').value;
   const startDate = document.getElementById('adm-conf-start').value || null;
   const endDate = document.getElementById('adm-conf-end').value || null;
+  const url = document.getElementById('adm-conf-url').value.trim() || null;
+  const thumbnail = document.getElementById('adm-conf-thumb').value.trim() || null;
+  const description = document.getElementById('adm-conf-desc').value.trim() || null;
   if (!name) return;
-  const { error } = await sb.from('conferences').insert({ name, location: loc, quarter: q, start_date: startDate, end_date: endDate });
+  const { error } = await sb.from('conferences').insert({ name, location: loc, quarter: q, start_date: startDate, end_date: endDate, url, thumbnail, description });
   if (error) { alert('Error: ' + error.message); return; }
   document.getElementById('adm-conf-name').value = '';
   document.getElementById('adm-conf-loc').value = '';
   document.getElementById('adm-conf-start').value = '';
   document.getElementById('adm-conf-end').value = '';
+  document.getElementById('adm-conf-url').value = '';
+  document.getElementById('adm-conf-thumb').value = '';
+  document.getElementById('adm-conf-desc').value = '';
   await loadAllData();
 }
 
@@ -2261,11 +2410,6 @@ async function deleteExpense(id) {
   await loadAllData();
 }
 
-async function updateConfStatus(id, status) {
-  await sb.from('conferences').update({ status }).eq('id', id);
-  await loadAllData();
-}
-
 function renderAdminLists() {
   // Conference cards
   const confCardsEl = document.getElementById('adm-conf-cards');
@@ -2276,14 +2420,23 @@ function renderAdminLists() {
       const attNames = attIds.map(id => { const p = DATA.people.find(pp => pp.id === id); return p ? p.name : '?'; });
       const totalBud = confExps.reduce((s,e) => s + (Number(e.budgeted)||0), 0);
       const notInConf = DATA.people.filter(p => !attIds.includes(p.id));
+      const thumbHtml = c.thumbnail ? `<img src="${esc(c.thumbnail)}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,0.08)">` : '';
+      const urlHtml = c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener" style="color:var(--gold);font-size:10px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:opacity 0.15s" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">&#8599; Website</a>` : '';
       return `<div class="admin-card">
-        <div class="admin-card-fields">
-          <div class="admin-card-field"><label>Name</label><div class="val" onclick="adminEditField('conferences','${c.id}','name','${esc(c.name)}',this)">${esc(c.name)}</div></div>
-          <div class="admin-card-field"><label>Location</label><div class="val" onclick="adminEditField('conferences','${c.id}','location','${esc(c.location||'')}',this)">${esc(c.location||'--')}</div></div>
-          <div class="admin-card-field"><label>Quarter</label><div class="val" onclick="adminEditQuarter('${c.id}','${c.quarter||'Q1'}',this)">${c.quarter||'--'}</div></div>
-          <div class="admin-card-field"><label>Start Date</label><div class="val" onclick="adminEditDate('conferences','${c.id}','start_date','${c.start_date||''}',this)">${c.start_date||'--'}</div></div>
-          <div class="admin-card-field"><label>End Date</label><div class="val" onclick="adminEditDate('conferences','${c.id}','end_date','${c.end_date||''}',this)">${c.end_date||'--'}</div></div>
-          <div class="admin-card-field"><label>Status</label><div class="val" onclick="adminEditStatus('${c.id}','${c.status||'Planning'}',this)">${c.status||'Planning'}</div></div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          ${thumbHtml}
+          <div style="flex:1;min-width:0">
+            <div class="admin-card-fields">
+              <div class="admin-card-field"><label>Name</label><div class="val" onclick="adminEditField('conferences','${c.id}','name','${esc(c.name)}',this)">${esc(c.name)}</div></div>
+              <div class="admin-card-field"><label>Location</label><div class="val" onclick="adminEditField('conferences','${c.id}','location','${esc(c.location||'')}',this)">${esc(c.location||'--')}</div></div>
+              <div class="admin-card-field"><label>Quarter</label><div class="val" onclick="adminEditQuarter('${c.id}','${c.quarter||'Q1'}',this)">${c.quarter||'--'}</div></div>
+              <div class="admin-card-field"><label>Start Date</label><div class="val" onclick="adminEditDate('conferences','${c.id}','start_date','${c.start_date||''}',this)">${c.start_date||'--'}</div></div>
+              <div class="admin-card-field"><label>End Date</label><div class="val" onclick="adminEditDate('conferences','${c.id}','end_date','${c.end_date||''}',this)">${c.end_date||'--'}</div></div>
+              <div class="admin-card-field"><label>URL</label><div class="val" onclick="adminEditField('conferences','${c.id}','url','${esc(c.url||'')}',this)">${c.url ? urlHtml : '--'}</div></div>
+              <div class="admin-card-field" style="grid-column:1/-1"><label>Thumbnail URL</label><div class="val" onclick="adminEditField('conferences','${c.id}','thumbnail','${esc(c.thumbnail||'')}',this)">${esc(c.thumbnail||'--')}</div></div>
+              <div class="admin-card-field" style="grid-column:1/-1"><label>Description</label><div class="val" onclick="adminEditField('conferences','${c.id}','description','${esc(c.description||'')}',this)" style="white-space:pre-wrap">${esc(c.description||'--')}</div></div>
+            </div>
+          </div>
         </div>
         <div style="margin-top:10px;font-size:10px;color:var(--t2)">
           <strong style="color:var(--gold)">${attNames.length}</strong> attendees: ${attNames.length ? attNames.map(n => esc(n)).join(', ') : 'None'}
@@ -2297,7 +2450,6 @@ function renderAdminLists() {
             </select>
             <button class="admin-btn" style="margin:0;padding:4px 10px;font-size:9px" onclick="const s=document.getElementById('adm-conf-add-person-${c.id}');if(s.value)addAttendeeToConf('${c.id}',s.value)">Add</button>
           </div>
-          <button class="admin-btn" style="margin:0;padding:4px 10px;font-size:9px" onclick="updateConfStatus('${c.id}','${c.status==='Completed'?'Planning':'Completed'}')">${c.status==='Completed'?'Reopen':'Complete'}</button>
           <button class="admin-btn danger" style="margin:0;padding:4px 10px;font-size:9px" onclick="deleteConference('${c.id}')">Delete</button>
         </div>
       </div>`;
@@ -2372,16 +2524,18 @@ function adminEditField(table, id, field, currentVal, el) {
   input.value = currentVal === '--' ? '' : currentVal;
   input.style.fontSize = '12px';
   el.replaceWith(input);
+  if (field === 'location' || field === 'base_location') attachLocationAutocomplete(input);
   input.focus();
   input.select();
   const save = async () => {
+    closeLocDropdown();
     const val = input.value.trim();
     const { error } = await sb.from(table).update({ [field]: val || null }).eq('id', id);
     if (error) alert('Error: ' + error.message);
     await loadAllData();
   };
-  input.addEventListener('blur', save);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.removeEventListener('blur', save); loadAllData(); } });
+  input.addEventListener('blur', () => { setTimeout(save, 100); });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && _locActiveIdx < 0) input.blur(); if (e.key === 'Escape') { closeLocDropdown(); input.removeEventListener('blur', save); loadAllData(); } });
 }
 
 function adminEditDate(table, id, field, currentVal, el) {
@@ -2421,27 +2575,6 @@ function adminEditQuarter(id, currentVal, el) {
   select.focus();
   const save = async () => {
     const { error } = await sb.from('conferences').update({ quarter: select.value }).eq('id', id);
-    if (error) alert('Error: ' + error.message);
-    await loadAllData();
-  };
-  select.addEventListener('change', save);
-  select.addEventListener('blur', save);
-}
-
-function adminEditStatus(id, currentVal, el) {
-  const select = document.createElement('select');
-  select.className = 'inline-edit';
-  select.style.fontSize = '11px';
-  ['Planning','Completed'].forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s; opt.textContent = s;
-    if (s === currentVal) opt.selected = true;
-    select.appendChild(opt);
-  });
-  el.replaceWith(select);
-  select.focus();
-  const save = async () => {
-    const { error } = await sb.from('conferences').update({ status: select.value }).eq('id', id);
     if (error) alert('Error: ' + error.message);
     await loadAllData();
   };
@@ -2619,8 +2752,7 @@ async function bulkImport() {
       const { data, error } = await sb.from('conferences').insert({
         name,
         location: c['Location'] || '',
-        quarter: c['Quarter'] || 'Q1',
-        status: (c['Status']||'').includes('Completed') ? 'Completed' : 'Planning'
+        quarter: c['Quarter'] || 'Q1'
       }).select().single();
       if (error) { status.innerHTML += `<br><span class="err">Conf error: ${error.message} (${name})</span>`; continue; }
       confMap[name] = data.id;

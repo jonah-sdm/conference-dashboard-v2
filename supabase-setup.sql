@@ -5,12 +5,16 @@
 
 -- 1. CONFERENCES
 CREATE TABLE conferences (
-  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name       text UNIQUE NOT NULL,
-  location   text,
-  quarter    text CHECK (quarter IN ('Q1','Q2','Q3','Q4')),
-  status     text DEFAULT 'Planning' CHECK (status IN ('Planning','Completed')),
-  created_at timestamptz DEFAULT now()
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        text UNIQUE NOT NULL,
+  location    text,
+  quarter     text CHECK (quarter IN ('Q1','Q2','Q3','Q4')),
+  start_date  date,
+  end_date    date,
+  url         text,
+  thumbnail   text,
+  description text,
+  created_at  timestamptz DEFAULT now()
 );
 
 -- 2. PEOPLE
