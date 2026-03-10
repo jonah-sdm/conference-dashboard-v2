@@ -717,7 +717,7 @@ async function loadAllData(manual = false) {
     const [confRes, pplRes, expRes, thrRes] = await Promise.all([
       sb.from('conferences').select('*').order('name'),
       sb.from('people').select('*').order('name'),
-      sb.from('expenses').select('*, conferences(name, location, quarter, status), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
+      sb.from('expenses').select('*, conferences(name, location, quarter, status, start_date, end_date), people(name, initials, base_location, role, note, color_text, color_bg, color_border)').order('created_at'),
       sb.from('threads').select('*').order('ts', { ascending: true })
     ]);
     if (confRes.error) throw confRes.error;
@@ -1170,7 +1170,7 @@ function renderProfile(personName, targetId) {
     const conf = e.conferences;
     if (!conf) return;
     const cName = conf.name;
-    if (!byConf[cName]) byConf[cName] = { cats: {}, loc: conf.location || '', q: conf.quarter || '' };
+    if (!byConf[cName]) byConf[cName] = { cats: {}, loc: conf.location || '', q: conf.quarter || '', start_date: conf.start_date || null, end_date: conf.end_date || null };
     if (e.category) {
       if (!byConf[cName].cats[e.category]) byConf[cName].cats[e.category] = { budget: 0, actual: 0 };
       byConf[cName].cats[e.category].budget += Number(e.budgeted) || 0;
@@ -1216,7 +1216,7 @@ function renderProfile(personName, targetId) {
 
     return `<div class="conf-item" id="pci-${i}">
       <div class="conf-item-header" onclick="toggleConf('pci-${i}')">
-        <div class="cih-left"><div><div class="cih-name">${esc(confName)}</div><div class="cih-loc">${esc(ev.loc||'TBD')} - ${ev.q}</div></div></div>
+        <div class="cih-left"><div><div class="cih-name">${esc(confName)}</div><div class="cih-loc">${fmtDateRange(ev.start_date, ev.end_date) !== '<span style="color:var(--t3)">--</span>' ? fmtDateRange(ev.start_date, ev.end_date) + ' · ' : ''}${esc(ev.loc||'TBD')} · ${ev.q}</div></div></div>
         <div class="cih-budget">${fmt(evBudget)}</div>
         <div class="cih-arrow">▾</div>
       </div>
