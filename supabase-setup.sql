@@ -72,6 +72,24 @@ CREATE POLICY "anon_all_people"      ON people      FOR ALL TO anon USING (true)
 CREATE POLICY "anon_all_expenses"    ON expenses    FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "anon_all_threads"     ON threads     FOR ALL TO anon USING (true) WITH CHECK (true);
 
+-- 5. EXPLORE CONFERENCES (discovery / prospect list)
+CREATE TABLE explore_conferences (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        text NOT NULL,
+  location    text,
+  start_date  date,
+  end_date    date,
+  url         text,
+  thumbnail   text,
+  description text,
+  tags        text,
+  source      text DEFAULT 'manual' CHECK (source IN ('manual','csv','api')),
+  created_at  timestamptz DEFAULT now()
+);
+
+ALTER TABLE explore_conferences ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all_explore" ON explore_conferences FOR ALL TO anon USING (true) WITH CHECK (true);
+
 -- ============================================================================
 -- INDEXES
 -- ============================================================================
