@@ -378,6 +378,63 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
 .inline-row { display:flex; gap:8px; align-items:flex-end; }
 .inline-row > div { flex:1; }
 
+/* FILTER BAR */
+.filter-bar { display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.filter-bar input, .filter-bar select {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  border-radius:5px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:11px;
+  padding:7px 10px; outline:none; transition:border-color 0.15s;
+}
+.filter-bar input:focus, .filter-bar select:focus { border-color:rgba(245,193,37,0.4); }
+.filter-bar input { width:200px; }
+.filter-bar select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606060' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; padding-right:24px; }
+.filter-bar select option { background:#111; color:#f0f0f0; }
+.filter-bar label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--t3); }
+
+/* DRILL ADD/REMOVE */
+.drill-add-btn { display:inline-flex; align-items:center; gap:4px; font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); background:var(--gold-d); border:1px solid var(--gold-b); padding:5px 12px; border-radius:4px; cursor:pointer; transition:all 0.15s; margin-top:8px; }
+.drill-add-btn:hover { background:rgba(245,193,37,0.15); }
+.drill-remove-btn { font-size:11px; color:var(--t3); cursor:pointer; opacity:0.5; transition:all 0.15s; padding:2px 6px; border-radius:3px; flex-shrink:0; }
+.drill-remove-btn:hover { opacity:1; color:var(--red); background:var(--red-d); }
+.drill-add-dropdown { margin-top:6px; }
+.drill-add-dropdown select { background:rgba(255,255,255,0.04); border:1px solid var(--gold-b); border-radius:4px; color:var(--text); font-size:11px; padding:5px 8px; outline:none; }
+
+/* ADMIN EDITABLE CARDS */
+.admin-card { background:var(--card); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:16px 20px; margin-bottom:10px; transition:border-color 0.2s; }
+.admin-card:hover { border-color:rgba(245,193,37,0.15); }
+.admin-card-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.admin-card-fields { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:8px; }
+.admin-card-field { display:flex; flex-direction:column; gap:2px; }
+.admin-card-field label { font-size:8px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--t3); }
+.admin-card-field .val { font-size:12px; color:var(--text); cursor:pointer; border-bottom:1px dashed rgba(255,255,255,0.15); padding:2px 4px; border-radius:2px; transition:all 0.15s; min-height:20px; }
+.admin-card-field .val:hover { border-bottom-color:var(--gold); color:var(--gold); }
+.admin-card-actions { display:flex; gap:8px; margin-top:10px; align-items:center; }
+.admin-card-stat { font-size:10px; color:var(--t3); flex:1; }
+
+/* EXPENSE BROWSER */
+.exp-browser { max-height:600px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.1) transparent; }
+.exp-browser::-webkit-scrollbar { width:4px; }
+.exp-browser::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+.exp-group { margin-bottom:16px; }
+.exp-group-header { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); padding:8px 0 4px; border-bottom:1px solid rgba(245,193,37,0.1); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.exp-person-group { margin-left:8px; margin-bottom:6px; }
+.exp-person-label { font-size:10px; font-weight:600; color:var(--t2); padding:4px 0 2px; }
+.exp-row { display:grid; grid-template-columns:1fr 100px 100px 40px; gap:0; align-items:center; border-bottom:1px solid rgba(255,255,255,0.03); padding:0 4px; }
+.exp-row > div { padding:5px 8px; font-size:11px; }
+.exp-row .exp-cat { color:var(--text); }
+.exp-row .exp-bud { color:var(--gold); font-weight:600; text-align:right; }
+.exp-row .exp-act { color:var(--green); font-weight:600; text-align:right; }
+.exp-row .exp-cat-sel { font-size:10px; }
+.exp-filter-bar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.exp-filter-bar select { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:4px; color:var(--text); font-size:10px; padding:5px 8px; outline:none; }
+.exp-filter-bar select option { background:#111; }
+
+/* PROFILE ADD CONF */
+.profile-add-conf { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+.profile-add-conf select { background:rgba(255,255,255,0.04); border:1px solid var(--gold-b); border-radius:5px; color:var(--text); font-size:11px; padding:6px 10px; outline:none; }
+.profile-remove-btn { font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--t3); background:none; border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:4px; cursor:pointer; transition:all 0.15s; }
+.profile-remove-btn:hover { border-color:rgba(244,63,94,0.4); color:var(--red); background:var(--red-d); }
+
 /* MOBILE */
 @media (max-width: 768px) {
   .nav { padding:0 16px; }
@@ -477,6 +534,22 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
     </div>
     <div class="ov-main">
       <div id="ov-conf-view" class="ov-conf-view">
+        <div class="filter-bar" id="filter-bar">
+          <label>Filter:</label>
+          <input type="text" id="filter-search" placeholder="Search conferences..." oninput="applyFilters()">
+          <select id="filter-quarter" onchange="applyFilters()">
+            <option value="">All Quarters</option>
+            <option value="Q1">Q1</option><option value="Q2">Q2</option>
+            <option value="Q3">Q3</option><option value="Q4">Q4</option>
+          </select>
+          <select id="filter-status" onchange="applyFilters()">
+            <option value="">All Status</option>
+            <option value="Planning">Planning</option><option value="Completed">Completed</option>
+          </select>
+          <select id="filter-person" onchange="applyFilters()">
+            <option value="">All People</option>
+          </select>
+        </div>
         <div class="card">
           <div class="ch">
             <div><span class="ch-accent"></span><div class="ch-lbl">All Conferences</div><div class="ch-title">Spend by Event -- Ranked by Budget</div></div>
@@ -487,7 +560,7 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
               <th class="sortable" onclick="sortConfs('name')">Conference <span class="sort-arrow" id="sort-name"></span></th>
               <th class="sortable hide-mobile" onclick="sortConfs('date')">Date <span class="sort-arrow" id="sort-date"></span></th>
               <th class="sortable hide-mobile" onclick="sortConfs('location')">Location <span class="sort-arrow" id="sort-location"></span></th>
-              <th class="sortable hide-mobile" onclick="sortConfs('attendees')">Attendees <span class="sort-arrow" id="sort-attendees"></span></th>
+              <th class="sortable hide-mobile" onclick="sortConfs('attendees')">Quarter <span class="sort-arrow" id="sort-attendees"></span></th>
               <th class="sortable r" onclick="sortConfs('budget')">Budget <span class="sort-arrow" id="sort-budget"></span></th>
               <th class="sortable r" onclick="sortConfs('actual')">Actual <span class="sort-arrow" id="sort-actual"></span></th>
               <th>Notes</th>
@@ -549,7 +622,6 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
         <div><label>End Date</label><input class="admin-input" id="adm-conf-end" type="date"></div>
       </div>
       <button class="admin-btn" onclick="addConference()">Add Conference</button>
-      <div class="admin-list" id="adm-conf-list"></div>
     </div>
 
     <!-- ADD PERSON -->
@@ -566,7 +638,18 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
       <label>Role</label>
       <input class="admin-input" id="adm-person-role" placeholder="e.g. Engineering">
       <button class="admin-btn" onclick="addPerson()">Add Team Member</button>
-      <div class="admin-list" id="adm-person-list"></div>
+    </div>
+
+    <!-- CONFERENCE CARDS -->
+    <div class="admin-section admin-full">
+      <h3>Manage Conferences</h3>
+      <div id="adm-conf-cards"></div>
+    </div>
+
+    <!-- PEOPLE CARDS -->
+    <div class="admin-section admin-full">
+      <h3>Manage Team Members</h3>
+      <div id="adm-person-cards"></div>
     </div>
 
     <!-- ADD EXPENSE -->
@@ -585,7 +668,17 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
         <div><label>Actual</label><input type="number" class="admin-input" id="adm-exp-act" placeholder="0"></div>
       </div>
       <button class="admin-btn" onclick="addExpense()">Add Expense</button>
-      <div class="admin-list" id="adm-exp-list" style="max-height:400px;overflow-y:auto"></div>
+    </div>
+
+    <!-- EXPENSE BROWSER -->
+    <div class="admin-section admin-full">
+      <h3>Expense Browser</h3>
+      <div class="exp-filter-bar">
+        <select id="exp-filter-conf" onchange="renderExpenseBrowser()"><option value="">All Conferences</option></select>
+        <select id="exp-filter-person" onchange="renderExpenseBrowser()"><option value="">All People</option></select>
+        <select id="exp-filter-cat" onchange="renderExpenseBrowser()"><option value="">All Categories</option></select>
+      </div>
+      <div class="exp-browser" id="adm-exp-browser"></div>
     </div>
 
     <!-- BULK IMPORT -->
@@ -648,6 +741,7 @@ let confSortDir = 'desc';
 let _cid = 0;
 const CKEYS = {};
 let _panelKey = null, _panelSlotId = null, _panelView = 'list', _panelThreadId = null;
+let _filterSearch = '', _filterQuarter = '', _filterStatus = '', _filterPerson = '';
 
 // ============================================================================
 // HELPERS
@@ -977,6 +1071,37 @@ document.addEventListener('keydown', e => {
 });
 
 // ============================================================================
+// FILTERS
+// ============================================================================
+function applyFilters() {
+  _filterSearch = (document.getElementById('filter-search')?.value || '').toLowerCase();
+  _filterQuarter = document.getElementById('filter-quarter')?.value || '';
+  _filterStatus = document.getElementById('filter-status')?.value || '';
+  _filterPerson = document.getElementById('filter-person')?.value || '';
+  renderAll();
+}
+
+function populateFilterPerson() {
+  const sel = document.getElementById('filter-person');
+  if (!sel) return;
+  const val = sel.value;
+  sel.innerHTML = '<option value="">All People</option>' + DATA.people.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  sel.value = val;
+}
+
+function getFilteredConfs() {
+  let confs = DATA.conferences;
+  if (_filterSearch) confs = confs.filter(c => c.name.toLowerCase().includes(_filterSearch));
+  if (_filterQuarter) confs = confs.filter(c => c.quarter === _filterQuarter);
+  if (_filterStatus) confs = confs.filter(c => (c.status || 'Planning') === _filterStatus);
+  if (_filterPerson) {
+    const personConfIds = new Set(DATA.expenses.filter(e => e.person_id === _filterPerson).map(e => e.conference_id));
+    confs = confs.filter(c => personConfIds.has(c.id));
+  }
+  return confs;
+}
+
+// ============================================================================
 // RENDER: OVERVIEW
 // ============================================================================
 function renderAll() {
@@ -984,6 +1109,8 @@ function renderAll() {
   const confs = DATA.conferences;
   const people = DATA.people;
   const expenses = DATA.expenses;
+
+  populateFilterPerson();
 
   // Compute per-conference totals
   const confTotals = {};
@@ -1010,7 +1137,6 @@ function renderAll() {
   document.getElementById('kpi-att-sub').textContent = attendees.map(p => p.name).join(' - ');
   document.getElementById('kpi-avg').textContent = confCount ? fmt(totalBudget / confCount) : '--';
   document.getElementById('overview-meta').textContent = `${confCount} Conferences - ${attendees.length} Attendees - All Figures Projected`;
-  document.getElementById('conf-pill').textContent = `${confCount} events`;
 
   // Quarter split
   const q1Confs = confs.filter(c => c.quarter === 'Q1').map(c => c.id);
@@ -1022,10 +1148,13 @@ function renderAll() {
   document.getElementById('q1-pct').textContent = pct(q1, totalBudget) + ' of total';
   document.getElementById('q2-pct').textContent = pct(q2, totalBudget) + ' of total';
 
+  // Apply filters
+  const filteredConfs = getFilteredConfs();
+
   // Conference table — sortable
   const confAttCounts = {};
   confs.forEach(c => { confAttCounts[c.id] = new Set(expenses.filter(e => e.conference_id === c.id).map(e => e.person_id)).size; });
-  const confsSorted = [...confs].sort((a, b) => {
+  const confsSorted = [...filteredConfs].sort((a, b) => {
     let va, vb;
     if (confSortCol === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); return confSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
     if (confSortCol === 'date') { va = a.start_date || '9999'; vb = b.start_date || '9999'; return confSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
@@ -1035,7 +1164,9 @@ function renderAll() {
     else { va = (confTotals[a.id]||{}).budgeted || 0; vb = (confTotals[b.id]||{}).budgeted || 0; }
     return confSortDir === 'asc' ? va - vb : vb - va;
   });
-  const maxBud = confsSorted.length ? Math.max(...confs.map(c => (confTotals[c.id]||{}).budgeted || 0), 1) : 1;
+  const maxBud = confsSorted.length ? Math.max(...confsSorted.map(c => (confTotals[c.id]||{}).budgeted || 0), 1) : 1;
+
+  document.getElementById('conf-pill').textContent = `${confsSorted.length} events`;
 
   // Update sort arrows
   ['name','date','location','attendees','budget','actual'].forEach(col => {
@@ -1048,12 +1179,15 @@ function renderAll() {
     const barW = Math.round(ct.budgeted / maxBud * 100);
     const confExps = expenses.filter(e => e.conference_id === c.id);
     const attCount = new Set(confExps.map(e => e.person_id)).size;
+    const confPersonIds = new Set(confExps.map(e => e.person_id));
 
     // Per-person breakdown
     const byPerson = {};
     confExps.forEach(e => {
       const pName = e.people ? e.people.name : 'Unknown';
-      byPerson[pName] = (byPerson[pName] || 0) + (Number(e.budgeted) || 0);
+      if (!byPerson[pName]) byPerson[pName] = { budget: 0, actual: 0 };
+      byPerson[pName].budget += Number(e.budgeted) || 0;
+      byPerson[pName].actual += Number(e.actual) || 0;
     });
     const byCat = {};
     confExps.forEach(e => {
@@ -1061,20 +1195,27 @@ function renderAll() {
     });
     const byPersonCats = {};
     const expenseIdMap = {}; // key: "person|category" -> expense id
+    const expenseActualMap = {}; // key: "person|category" -> actual amount
     confExps.forEach(e => {
       const pName = e.people ? e.people.name : 'Unknown';
       if (!byPersonCats[pName]) byPersonCats[pName] = {};
       byPersonCats[pName][e.category] = (byPersonCats[pName][e.category] || 0) + (Number(e.budgeted) || 0);
       expenseIdMap[pName + '|' + e.category] = e.id;
+      expenseActualMap[pName + '|' + e.category] = Number(e.actual) || 0;
     });
 
-    const firstPerson = Object.keys(byPerson).sort((a,b) => byPerson[b]-byPerson[a])[0];
-    const personRows = Object.entries(byPerson).sort((a,b) => b[1]-a[1]).map(([name, amt]) => {
+    const firstPerson = Object.keys(byPerson).sort((a,b) => byPerson[b].budget-byPerson[a].budget)[0];
+
+    // People not yet in this conference
+    const availablePeople = people.filter(p => !confPersonIds.has(p.id));
+
+    const personRows = Object.entries(byPerson).sort((a,b) => b[1].budget-a[1].budget).map(([name, totals]) => {
       const p = findPerson(name);
       const pc = p ? personColor(p) : personColor(null);
       const init = p ? p.initials : name.slice(0,2).toUpperCase();
       const base = p ? p.base_location : '--';
       const isFirst = name === firstPerson;
+      const pId = p ? p.id : '';
       return `<div class="drill-person ${isFirst?'drill-person-active':''}" onclick="selectDrillPerson('${esc(name)}',${i})">
         <div class="drill-person-av" style="background:${pc.bg};border-color:${pc.border};color:${pc.text}">${init}</div>
         <div style="display:flex;flex-direction:column;gap:2px">
@@ -1082,10 +1223,18 @@ function renderAll() {
           <div style="font-size:10px;color:var(--t3)">${esc(base)}</div>
         </div>
         <div style="flex:1"></div>
-        <div class="drill-person-amt">${fmt(amt)}</div>
-        <div style="margin-left:10px;cursor:pointer;font-size:9px;color:var(--t3)" onclick="event.stopPropagation();navigatePerson('${esc(name)}')">Profile</div>
+        <div class="drill-person-amt" style="cursor:pointer" onclick="event.stopPropagation();navigatePerson('${esc(name)}')" title="Click to view profile">${fmt(totals.budget)}</div>
+        <span class="drill-remove-btn" onclick="event.stopPropagation();removeAttendeeFromConf('${c.id}','${pId}','${esc(name)}','${esc(c.name)}')" title="Remove from conference">&#10005;</span>
       </div>`;
     }).join('');
+
+    const addAttendeeHTML = availablePeople.length ? `<div class="drill-add-dropdown" id="add-attendee-${i}" style="display:none">
+      <select class="inline-edit" style="width:auto;font-size:11px" onchange="addAttendeeToConf('${c.id}',this.value);this.parentElement.style.display='none'">
+        <option value="">-- Select Person --</option>
+        ${availablePeople.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}
+      </select>
+    </div>
+    <button class="drill-add-btn" onclick="event.stopPropagation();document.getElementById('add-attendee-${i}').style.display=document.getElementById('add-attendee-${i}').style.display==='none'?'block':'none'">+ Add Attendee</button>` : '';
 
     const catPanels = Object.entries(byPersonCats).map(([name, cats]) => {
       const entries = Object.entries(cats).sort((a,b) => b[1]-a[1]);
@@ -1093,11 +1242,17 @@ function renderAll() {
       const tot = entries.reduce((s,[,v]) => s+v, 0);
       const rows = entries.map(([cat, amt]) => {
         const eId = expenseIdMap[name + '|' + cat] || '';
+        const actAmt = expenseActualMap[name + '|' + cat] || 0;
+        const budgetSpan = eId ? `<span class="editable" onclick="event.stopPropagation();editExpenseAmt('${eId}','budgeted',${amt},this)">${fmt(amt)}</span>` : fmt(amt);
+        const actualSpan = eId ? `<span class="editable" style="color:${actAmt?'var(--green)':'var(--t3)'}" onclick="event.stopPropagation();editExpenseAmt('${eId}','actual',${actAmt},this)">${actAmt ? fmt(actAmt) : '$0 actual'}</span>` : '';
         return `<div class="drill-cat">
           <div class="drill-cat-icon">${CAT_ICONS[cat]||'📦'}</div>
           <div class="drill-cat-name">${cat}</div>
           <div class="drill-cat-bar-wrap"><div class="drill-cat-bar" style="width:${Math.round(amt/mx*100)}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
-          <div class="drill-cat-amt">${eId ? `<span class="editable" onclick="event.stopPropagation();editExpenseAmt('${eId}','budgeted',${amt},this)">${fmt(amt)}</span>` : fmt(amt)}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:90px">
+            <div class="drill-cat-amt" style="font-size:11px">${budgetSpan}</div>
+            <div style="font-size:9.5px">${actualSpan}</div>
+          </div>
         </div>`;
       }).join('');
       return `<div class="drill-cat-panel" id="catpanel-${i}-${name.replace(/\s+/g,'_')}" style="display:${name===firstPerson?'block':'none'}">
@@ -1111,6 +1266,7 @@ function renderAll() {
         <div>
           <div class="drill-section-title">Attending (${attCount} people) -- click to see breakdown</div>
           ${personRows || '<div style="color:var(--t3);font-size:11px">No expense data yet</div>'}
+          ${addAttendeeHTML}
         </div>
         <div>
           <div class="drill-section-title" id="cattitle-${i}">${firstPerson ? esc(firstPerson)+"'s" : ''} Budget by Category</div>
@@ -1119,11 +1275,13 @@ function renderAll() {
       </div></td>
     </tr>`;
 
+    const qOpts = ['Q1','Q2','Q3','Q4'];
+
     return `<tr class="conf-row" onclick="toggleConfRow(${i}, this)">
-      <td class="nm">${esc(c.name)} <span style="font-size:9px;color:var(--t3);font-weight:400;margin-left:4px">▾</span></td>
+      <td class="nm" onclick="event.stopPropagation()"><span class="editable" onclick="editConfField('${c.id}','name','${esc(c.name)}',this)">${esc(c.name)}</span> <span style="font-size:9px;color:var(--t3);font-weight:400;margin-left:4px" onclick="event.stopPropagation();this.parentElement.parentElement.click()">▾</span></td>
       <td class="dt hide-mobile" onclick="event.stopPropagation()" style="white-space:nowrap;font-size:11px;color:var(--t2)"><span class="editable" onclick="editConfDate('${c.id}','${c.start_date||''}','${c.end_date||''}',this)">${fmtDateRange(c.start_date, c.end_date)}</span></td>
       <td class="lc hide-mobile" onclick="event.stopPropagation()"><span class="editable" onclick="editConfField('${c.id}','location','${esc(c.location||'')}',this)">${esc(c.location||'--')}</span></td>
-      <td class="at hide-mobile">${attCount}</td>
+      <td class="at hide-mobile" onclick="event.stopPropagation()"><span class="editable" onclick="editConfQuarter('${c.id}','${c.quarter||'Q1'}',this)">${c.quarter||'--'}</span></td>
       <td class="bu"><div class="bw"><div class="bb"><div class="bf" style="width:${barW}%"></div></div>${fmt(ct.budgeted)}</div></td>
       <td class="ac">${ct.actual ? fmt(ct.actual) : '<span style="color:var(--t3)">--</span>'}</td>
       <td onclick="event.stopPropagation()" style="padding:8px 16px;text-align:center">${commentBtn('CONF::'+c.name)}</td>
@@ -1207,15 +1365,18 @@ function renderProfile(personName, targetId) {
   const myExp = DATA.expenses.filter(e => e.people && e.people.name === personName);
 
   const byConf = {};
+  const confIdMap = {}; // confName -> conference_id
   myExp.forEach(e => {
     const conf = e.conferences;
     if (!conf) return;
     const cName = conf.name;
+    confIdMap[cName] = e.conference_id;
     if (!byConf[cName]) byConf[cName] = { cats: {}, loc: conf.location || '', q: conf.quarter || '', start_date: conf.start_date || null, end_date: conf.end_date || null };
     if (e.category) {
-      if (!byConf[cName].cats[e.category]) byConf[cName].cats[e.category] = { budget: 0, actual: 0 };
+      if (!byConf[cName].cats[e.category]) byConf[cName].cats[e.category] = { budget: 0, actual: 0, expId: null };
       byConf[cName].cats[e.category].budget += Number(e.budgeted) || 0;
       byConf[cName].cats[e.category].actual += Number(e.actual) || 0;
+      byConf[cName].cats[e.category].expId = e.id;
     }
   });
 
@@ -1227,6 +1388,10 @@ function renderProfile(personName, targetId) {
   const catTotals = {};
   Object.values(byConf).forEach(ev => { Object.entries(ev.cats).forEach(([cat, val]) => { catTotals[cat] = (catTotals[cat]||0) + val.budget; }); });
 
+  // Conferences this person is NOT in
+  const myConfIds = new Set(Object.values(confIdMap));
+  const availableConfs = DATA.conferences.filter(c => !myConfIds.has(c.id));
+
   const sortedConfs = Object.entries(byConf).sort((a,b) => {
     const ta = Object.values(a[1].cats).reduce((s,c) => s+c.budget, 0);
     const tb = Object.values(b[1].cats).reduce((s,c) => s+c.budget, 0);
@@ -1236,19 +1401,20 @@ function renderProfile(personName, targetId) {
   const confItems = sortedConfs.map(([confName, ev], i) => {
     const evBudget = Object.values(ev.cats).reduce((s,c) => s+c.budget, 0);
     const maxCat = Math.max(...Object.values(ev.cats).map(c => c.budget), 1);
+    const cId = confIdMap[confName] || '';
     const activeCats = [...new Set([...ALL_CATS.filter(cat => ev.cats[cat]), ...Object.keys(ev.cats)])];
     const catRows = activeCats.sort((a,b) => (ev.cats[b]?.budget||0)-(ev.cats[a]?.budget||0)).map(cat => {
-      const val = ev.cats[cat] || { budget: 0, actual: 0 };
-      const isZero = val.budget === 0;
+      const val = ev.cats[cat] || { budget: 0, actual: 0, expId: null };
+      const isZero = val.budget === 0 && val.actual === 0;
       const barW = isZero ? 0 : Math.round(val.budget / maxCat * 100);
-      const actualHtml = val.actual ? `<span class="cat-actual-amt">${fmt(val.actual)}</span>` : `<span class="cat-actual-amt none">No actual</span>`;
+      const eId = val.expId;
+      const budgetHtml = eId ? `<span class="cat-budget-amt editable" onclick="editExpenseAmt('${eId}','budgeted',${val.budget},this)">${fmt(val.budget)}</span>` : `<span class="cat-budget-amt">${fmt(val.budget)}</span>`;
+      const actualHtml = eId ? `<span class="cat-actual-amt ${val.actual?'':'none'} editable" onclick="editExpenseAmt('${eId}','actual',${val.actual},this)">${val.actual ? fmt(val.actual) : 'No actual'}</span>` : (val.actual ? `<span class="cat-actual-amt">${fmt(val.actual)}</span>` : `<span class="cat-actual-amt none">No actual</span>`);
       return `<div class="cat-row" style="${isZero?'opacity:0.6':''}">
         <div class="cat-icon">${CAT_ICONS[cat]||'📦'}</div>
         <div class="cat-info">
           <div class="cat-top"><span class="cat-name-sm">${cat}</span>
-            <div class="cat-amounts">${isZero?'':`<span class="cat-budget-amt">${fmt(val.budget)}</span>${actualHtml}`}
-              ${isZero?'<span style="font-size:9px;color:var(--green);font-weight:600">$0</span>':''}
-            </div>
+            <div class="cat-amounts">${budgetHtml}${actualHtml}</div>
           </div>
           <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${barW}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
         </div>
@@ -1258,6 +1424,7 @@ function renderProfile(personName, targetId) {
     return `<div class="conf-item" id="pci-${i}">
       <div class="conf-item-header" onclick="toggleConf('pci-${i}')">
         <div class="cih-left"><div><div class="cih-name">${esc(confName)}</div><div class="cih-loc">${fmtDateRange(ev.start_date, ev.end_date) !== '<span style="color:var(--t3)">--</span>' ? fmtDateRange(ev.start_date, ev.end_date) + ' · ' : ''}${esc(ev.loc||'TBD')} · ${ev.q}</div></div></div>
+        <button class="profile-remove-btn" onclick="event.stopPropagation();removePersonFromConf('${cId}','${p.id}','${esc(personName)}','${esc(confName)}')">Remove</button>
         <div class="cih-budget">${fmt(evBudget)}</div>
         <div class="cih-arrow">▾</div>
       </div>
@@ -1278,6 +1445,14 @@ function renderProfile(personName, targetId) {
       ${cat}: <strong style="color:var(--text)">${fmt(amt)}</strong> <span style="color:var(--t3)">(${pp}%)</span>
     </div>`;
   }).join('');
+
+  const addConfDropdown = availableConfs.length ? `<div class="profile-add-conf">
+    <select id="profile-add-conf-sel" class="inline-edit" style="width:auto;font-size:11px">
+      <option value="">-- Add to Conference --</option>
+      ${availableConfs.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}
+    </select>
+    <button class="drill-add-btn" onclick="addPersonToConf(document.getElementById('profile-add-conf-sel').value,'${p.id}')">+ Add</button>
+  </div>` : '';
 
   document.getElementById(targetId).innerHTML = `
     <div class="profile-header" style="border-color:${pc.border}">
@@ -1304,7 +1479,10 @@ function renderProfile(personName, targetId) {
       <div style="margin-top:10px;display:flex;height:6px;border-radius:4px;overflow:hidden;gap:1px">${stackedBar}</div>
     </div>
     <div>
-      <div style="font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--lbl);margin-bottom:10px">Conference Breakdown -- click to expand</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--lbl)">Conference Breakdown -- click to expand</div>
+      </div>
+      ${addConfDropdown}
       <div class="conf-breakdown">${confItems}</div>
     </div>`;
 }
@@ -1385,6 +1563,56 @@ async function editExpenseAmt(expenseId, field, currentVal, el) {
   };
   input.addEventListener('blur', save);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.removeEventListener('blur', save); loadAllData(); } });
+}
+
+function editConfQuarter(confId, currentVal, el) {
+  const select = document.createElement('select');
+  select.className = 'inline-edit';
+  select.style.width = '70px';
+  ['Q1','Q2','Q3','Q4'].forEach(q => {
+    const opt = document.createElement('option');
+    opt.value = q; opt.textContent = q;
+    if (q === currentVal) opt.selected = true;
+    select.appendChild(opt);
+  });
+  el.replaceWith(select);
+  select.focus();
+  const save = async () => {
+    const val = select.value;
+    const { error } = await sb.from('conferences').update({ quarter: val }).eq('id', confId);
+    if (error) { alert('Error: ' + error.message); }
+    await loadAllData();
+  };
+  select.addEventListener('change', save);
+  select.addEventListener('blur', save);
+}
+
+async function addAttendeeToConf(confId, personId) {
+  if (!confId || !personId) return;
+  const conf = DATA.conferences.find(c => c.id === confId);
+  const rows = ALL_CATS.map(cat => ({
+    conference_id: confId, person_id: personId, category: cat,
+    budgeted: 0, actual: 0, quarter: conf ? conf.quarter : null
+  }));
+  const { error } = await sb.from('expenses').insert(rows);
+  if (error) { alert('Error: ' + error.message); return; }
+  await loadAllData();
+}
+
+async function removeAttendeeFromConf(confId, personId, personName, confName) {
+  if (!confirm(`Remove ${personName} from ${confName}? This will delete all their expenses for this conference.`)) return;
+  const { error } = await sb.from('expenses').delete().eq('conference_id', confId).eq('person_id', personId);
+  if (error) { alert('Error: ' + error.message); return; }
+  await loadAllData();
+}
+
+async function addPersonToConf(confId, personId) {
+  if (!confId || !personId) return;
+  await addAttendeeToConf(confId, personId);
+}
+
+async function removePersonFromConf(confId, personId, personName, confName) {
+  await removeAttendeeFromConf(confId, personId, personName, confName);
 }
 
 function sortConfs(col) {
@@ -1532,42 +1760,288 @@ async function updateConfStatus(id, status) {
 }
 
 function renderAdminLists() {
-  // Conferences
-  document.getElementById('adm-conf-list').innerHTML = DATA.conferences.map(c => `
-    <div class="admin-list-item">
-      <span class="name">${esc(c.name)}</span>
-      <span class="sub">${esc(c.location||'')} - ${c.quarter} ${c.start_date ? '- ' + fmtDateRange(c.start_date, c.end_date) : ''}</span>
-      <button onclick="updateConfStatus('${c.id}','${c.status==='Completed'?'Planning':'Completed'}')">${c.status==='Completed'?'Reopen':'Complete'}</button>
-      <button class="del" onclick="deleteConference('${c.id}')">Delete</button>
-    </div>`).join('');
+  // Conference cards
+  const confCardsEl = document.getElementById('adm-conf-cards');
+  if (confCardsEl) {
+    confCardsEl.innerHTML = DATA.conferences.map(c => {
+      const confExps = DATA.expenses.filter(e => e.conference_id === c.id);
+      const attIds = [...new Set(confExps.map(e => e.person_id))];
+      const attNames = attIds.map(id => { const p = DATA.people.find(pp => pp.id === id); return p ? p.name : '?'; });
+      const totalBud = confExps.reduce((s,e) => s + (Number(e.budgeted)||0), 0);
+      const notInConf = DATA.people.filter(p => !attIds.includes(p.id));
+      return `<div class="admin-card">
+        <div class="admin-card-fields">
+          <div class="admin-card-field"><label>Name</label><div class="val" onclick="adminEditField('conferences','${c.id}','name','${esc(c.name)}',this)">${esc(c.name)}</div></div>
+          <div class="admin-card-field"><label>Location</label><div class="val" onclick="adminEditField('conferences','${c.id}','location','${esc(c.location||'')}',this)">${esc(c.location||'--')}</div></div>
+          <div class="admin-card-field"><label>Quarter</label><div class="val" onclick="adminEditQuarter('${c.id}','${c.quarter||'Q1'}',this)">${c.quarter||'--'}</div></div>
+          <div class="admin-card-field"><label>Start Date</label><div class="val" onclick="adminEditDate('conferences','${c.id}','start_date','${c.start_date||''}',this)">${c.start_date||'--'}</div></div>
+          <div class="admin-card-field"><label>End Date</label><div class="val" onclick="adminEditDate('conferences','${c.id}','end_date','${c.end_date||''}',this)">${c.end_date||'--'}</div></div>
+          <div class="admin-card-field"><label>Status</label><div class="val" onclick="adminEditStatus('${c.id}','${c.status||'Planning'}',this)">${c.status||'Planning'}</div></div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--t2)">
+          <strong style="color:var(--gold)">${attNames.length}</strong> attendees: ${attNames.length ? attNames.map(n => esc(n)).join(', ') : 'None'}
+          <span style="margin-left:6px;color:var(--gold);font-weight:600">${fmt(totalBud)}</span> total budget
+        </div>
+        <div class="admin-card-actions">
+          <div style="flex:1;display:flex;gap:6px;align-items:center;">
+            <select class="inline-edit" style="width:auto;font-size:10px" id="adm-conf-add-person-${c.id}">
+              <option value="">+ Add Attendee</option>
+              ${notInConf.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}
+            </select>
+            <button class="admin-btn" style="margin:0;padding:4px 10px;font-size:9px" onclick="const s=document.getElementById('adm-conf-add-person-${c.id}');if(s.value)addAttendeeToConf('${c.id}',s.value)">Add</button>
+          </div>
+          <button class="admin-btn" style="margin:0;padding:4px 10px;font-size:9px" onclick="updateConfStatus('${c.id}','${c.status==='Completed'?'Planning':'Completed'}')">${c.status==='Completed'?'Reopen':'Complete'}</button>
+          <button class="admin-btn danger" style="margin:0;padding:4px 10px;font-size:9px" onclick="deleteConference('${c.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('') || '<div style="color:var(--t3);font-size:11px;padding:12px">No conferences yet</div>';
+  }
 
-  // People
-  document.getElementById('adm-person-list').innerHTML = DATA.people.map(p => `
-    <div class="admin-list-item">
-      <div class="av" style="background:${p.color_bg};border-color:${p.color_border};color:${p.color_text};width:24px;height:24px;font-size:8px">${p.initials}</div>
-      <span class="name">${esc(p.name)}</span>
-      <span class="sub">${esc(p.role||'')} - ${esc(p.base_location||'')}</span>
-      <button class="del" onclick="deletePerson('${p.id}')">Delete</button>
-    </div>`).join('');
+  // People cards
+  const personCardsEl = document.getElementById('adm-person-cards');
+  if (personCardsEl) {
+    personCardsEl.innerHTML = DATA.people.map(p => {
+      const pc = personColor(p);
+      const myExps = DATA.expenses.filter(e => e.person_id === p.id);
+      const confIds = new Set(myExps.map(e => e.conference_id));
+      const totalBud = myExps.reduce((s,e) => s + (Number(e.budgeted)||0), 0);
+      return `<div class="admin-card" style="border-left:3px solid ${pc.border}">
+        <div class="admin-card-header">
+          <div class="av" style="background:${pc.bg};border-color:${pc.border};color:${pc.text};width:28px;height:28px;font-size:9px">${p.initials}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(p.name)}</div>
+            <div style="font-size:10px;color:var(--t3)">${confIds.size} conferences - ${fmt(totalBud)} total</div>
+          </div>
+        </div>
+        <div class="admin-card-fields">
+          <div class="admin-card-field"><label>Name</label><div class="val" onclick="adminEditField('people','${p.id}','name','${esc(p.name)}',this)">${esc(p.name)}</div></div>
+          <div class="admin-card-field"><label>Initials</label><div class="val" onclick="adminEditField('people','${p.id}','initials','${esc(p.initials||'')}',this)">${esc(p.initials||'--')}</div></div>
+          <div class="admin-card-field"><label>Base Location</label><div class="val" onclick="adminEditField('people','${p.id}','base_location','${esc(p.base_location||'')}',this)">${esc(p.base_location||'--')}</div></div>
+          <div class="admin-card-field"><label>Role</label><div class="val" onclick="adminEditField('people','${p.id}','role','${esc(p.role||'')}',this)">${esc(p.role||'--')}</div></div>
+          <div class="admin-card-field"><label>Color</label><div class="val" onclick="adminEditColor('${p.id}','${p.color_text||'#F5C125'}',this)" style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:${pc.text};display:inline-block"></span>${p.color_text||'#F5C125'}</div></div>
+        </div>
+        <div class="admin-card-actions">
+          <div class="admin-card-stat">${confIds.size} conf${confIds.size!==1?'s':''} - ${fmt(totalBud)} budget</div>
+          <button class="admin-btn danger" style="margin:0;padding:4px 10px;font-size:9px" onclick="deletePerson('${p.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('') || '<div style="color:var(--t3);font-size:11px;padding:12px">No team members yet</div>';
+  }
 
-  // Expenses
-  document.getElementById('adm-exp-list').innerHTML = DATA.expenses.slice(-50).reverse().map(e => {
-    const cName = e.conferences ? e.conferences.name : '?';
-    const pName = e.people ? e.people.name : '?';
-    return `<div class="admin-list-item">
-      <span class="name" style="font-size:11px">${esc(cName)}</span>
-      <span class="sub">${esc(pName)} - ${e.category}</span>
-      <span style="font-size:11px;color:var(--gold);font-weight:600">${fmt(e.budgeted)}</span>
-      ${e.actual ? `<span style="font-size:11px;color:var(--green);font-weight:600">${fmt(e.actual)}</span>` : ''}
-      <button class="del" onclick="deleteExpense('${e.id}')">Del</button>
-    </div>`;
-  }).join('');
-
-  // Dropdowns
+  // Dropdowns for add expense form
   const confSel = document.getElementById('adm-exp-conf');
   confSel.innerHTML = DATA.conferences.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
   const pplSel = document.getElementById('adm-exp-person');
   pplSel.innerHTML = DATA.people.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+
+  // Expense browser filter dropdowns
+  const expConfSel = document.getElementById('exp-filter-conf');
+  if (expConfSel) {
+    const v = expConfSel.value;
+    expConfSel.innerHTML = '<option value="">All Conferences</option>' + DATA.conferences.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    expConfSel.value = v;
+  }
+  const expPersSel = document.getElementById('exp-filter-person');
+  if (expPersSel) {
+    const v = expPersSel.value;
+    expPersSel.innerHTML = '<option value="">All People</option>' + DATA.people.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    expPersSel.value = v;
+  }
+  const expCatSel = document.getElementById('exp-filter-cat');
+  if (expCatSel) {
+    const v = expCatSel.value;
+    expCatSel.innerHTML = '<option value="">All Categories</option>' + ALL_CATS.map(c => `<option value="${c}">${c}</option>`).join('');
+    expCatSel.value = v;
+  }
+  renderExpenseBrowser();
+}
+
+// ============================================================================
+// ADMIN: INLINE EDITING FOR CARDS
+// ============================================================================
+function adminEditField(table, id, field, currentVal, el) {
+  const input = document.createElement('input');
+  input.className = 'inline-edit';
+  input.value = currentVal === '--' ? '' : currentVal;
+  input.style.fontSize = '12px';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  const save = async () => {
+    const val = input.value.trim();
+    const { error } = await sb.from(table).update({ [field]: val || null }).eq('id', id);
+    if (error) alert('Error: ' + error.message);
+    await loadAllData();
+  };
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.removeEventListener('blur', save); loadAllData(); } });
+}
+
+function adminEditDate(table, id, field, currentVal, el) {
+  const input = document.createElement('input');
+  input.type = 'date';
+  input.className = 'inline-edit';
+  input.value = currentVal || '';
+  input.style.fontSize = '11px';
+  el.replaceWith(input);
+  input.focus();
+  const save = async () => {
+    const val = input.value || null;
+    const { error } = await sb.from(table).update({ [field]: val }).eq('id', id);
+    if (error) alert('Error: ' + error.message);
+    await loadAllData();
+  };
+  input.addEventListener('blur', save);
+  input.addEventListener('change', save);
+}
+
+function adminEditQuarter(id, currentVal, el) {
+  const select = document.createElement('select');
+  select.className = 'inline-edit';
+  select.style.fontSize = '11px';
+  ['Q1','Q2','Q3','Q4'].forEach(q => {
+    const opt = document.createElement('option');
+    opt.value = q; opt.textContent = q;
+    if (q === currentVal) opt.selected = true;
+    select.appendChild(opt);
+  });
+  el.replaceWith(select);
+  select.focus();
+  const save = async () => {
+    const { error } = await sb.from('conferences').update({ quarter: select.value }).eq('id', id);
+    if (error) alert('Error: ' + error.message);
+    await loadAllData();
+  };
+  select.addEventListener('change', save);
+  select.addEventListener('blur', save);
+}
+
+function adminEditStatus(id, currentVal, el) {
+  const select = document.createElement('select');
+  select.className = 'inline-edit';
+  select.style.fontSize = '11px';
+  ['Planning','Completed'].forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    if (s === currentVal) opt.selected = true;
+    select.appendChild(opt);
+  });
+  el.replaceWith(select);
+  select.focus();
+  const save = async () => {
+    const { error } = await sb.from('conferences').update({ status: select.value }).eq('id', id);
+    if (error) alert('Error: ' + error.message);
+    await loadAllData();
+  };
+  select.addEventListener('change', save);
+  select.addEventListener('blur', save);
+}
+
+function adminEditColor(id, currentVal, el) {
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.className = 'inline-edit';
+  input.value = currentVal || '#F5C125';
+  input.style.width = '50px';
+  input.style.height = '28px';
+  input.style.padding = '2px';
+  el.replaceWith(input);
+  input.focus();
+  input.click();
+  const save = async () => {
+    const color = input.value;
+    const { error } = await sb.from('people').update({
+      color_text: color,
+      color_bg: hexToRgba(color, 0.12),
+      color_border: hexToRgba(color, 0.3)
+    }).eq('id', id);
+    if (error) alert('Error: ' + error.message);
+    await loadAllData();
+  };
+  input.addEventListener('change', save);
+  input.addEventListener('blur', save);
+}
+
+async function adminEditExpenseField(expId, field, currentVal, el) {
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'inline-edit';
+  input.value = currentVal || 0;
+  input.style.width = '80px';
+  input.style.textAlign = 'right';
+  input.style.fontSize = '11px';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  const save = async () => {
+    const val = parseFloat(input.value) || 0;
+    const { error } = await sb.from('expenses').update({ [field]: val }).eq('id', expId);
+    if (error) alert('Error: ' + error.message);
+    await loadAllData();
+  };
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.removeEventListener('blur', save); loadAllData(); } });
+}
+
+async function adminChangeExpenseCategory(expId, newCat) {
+  if (!newCat) return;
+  const { error } = await sb.from('expenses').update({ category: newCat }).eq('id', expId);
+  if (error) alert('Error: ' + error.message);
+  await loadAllData();
+}
+
+// ============================================================================
+// EXPENSE BROWSER
+// ============================================================================
+function renderExpenseBrowser() {
+  const browser = document.getElementById('adm-exp-browser');
+  if (!browser) return;
+  const fConf = document.getElementById('exp-filter-conf')?.value || '';
+  const fPers = document.getElementById('exp-filter-person')?.value || '';
+  const fCat = document.getElementById('exp-filter-cat')?.value || '';
+
+  let exps = [...DATA.expenses];
+  if (fConf) exps = exps.filter(e => e.conference_id === fConf);
+  if (fPers) exps = exps.filter(e => e.person_id === fPers);
+  if (fCat) exps = exps.filter(e => e.category === fCat);
+
+  // Group by conference, then by person
+  const groups = {};
+  exps.forEach(e => {
+    const cName = e.conferences ? e.conferences.name : 'Unknown';
+    const pName = e.people ? e.people.name : 'Unknown';
+    if (!groups[cName]) groups[cName] = {};
+    if (!groups[cName][pName]) groups[cName][pName] = [];
+    groups[cName][pName].push(e);
+  });
+
+  if (!exps.length) {
+    browser.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:16px;text-align:center">No expenses match the current filters</div>';
+    return;
+  }
+
+  let html = '';
+  Object.entries(groups).sort((a,b) => a[0].localeCompare(b[0])).forEach(([confName, people]) => {
+    html += `<div class="exp-group"><div class="exp-group-header">${esc(confName)}<span style="font-size:9px;color:var(--t3);font-weight:400">${Object.keys(people).length} people</span></div>`;
+    Object.entries(people).sort((a,b) => a[0].localeCompare(b[0])).forEach(([personName, expenses]) => {
+      html += `<div class="exp-person-group"><div class="exp-person-label">${esc(personName)}</div>`;
+      expenses.forEach(e => {
+        html += `<div class="exp-row">
+          <div class="exp-cat">
+            <select class="inline-edit" style="width:auto;font-size:10px;padding:2px 4px;background:transparent;border:none" onchange="adminChangeExpenseCategory('${e.id}',this.value)">
+              ${ALL_CATS.map(c => `<option value="${c}" ${c===e.category?'selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="exp-bud"><span class="editable" onclick="adminEditExpenseField('${e.id}','budgeted',${Number(e.budgeted)||0},this)">${fmt(e.budgeted)}</span></div>
+          <div class="exp-act"><span class="editable" style="color:${e.actual?'var(--green)':'var(--t3)'}" onclick="adminEditExpenseField('${e.id}','actual',${Number(e.actual)||0},this)">${e.actual ? fmt(e.actual) : '--'}</span></div>
+          <div style="text-align:right;font-size:10px"><span class="drill-remove-btn" onclick="deleteExpense('${e.id}')" style="font-size:10px">&#10005;</span></div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  browser.innerHTML = html;
 }
 
 // ============================================================================
