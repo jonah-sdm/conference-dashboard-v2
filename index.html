@@ -480,7 +480,7 @@ tr.conf-drill .drill-inner { padding:20px 24px; display:grid; grid-template-colu
             <thead><tr>
               <th class="sortable" onclick="sortConfs('name')">Conference <span class="sort-arrow" id="sort-name"></span></th>
               <th class="sortable hide-mobile" onclick="sortConfs('date')">Date <span class="sort-arrow" id="sort-date"></span></th>
-              <th class="hide-mobile">Location</th>
+              <th class="sortable hide-mobile" onclick="sortConfs('location')">Location <span class="sort-arrow" id="sort-location"></span></th>
               <th class="sortable hide-mobile" onclick="sortConfs('attendees')">Attendees <span class="sort-arrow" id="sort-attendees"></span></th>
               <th class="sortable r" onclick="sortConfs('budget')">Budget <span class="sort-arrow" id="sort-budget"></span></th>
               <th class="sortable r" onclick="sortConfs('actual')">Actual <span class="sort-arrow" id="sort-actual"></span></th>
@@ -1023,6 +1023,7 @@ function renderAll() {
     let va, vb;
     if (confSortCol === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); return confSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
     if (confSortCol === 'date') { va = a.start_date || '9999'; vb = b.start_date || '9999'; return confSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
+    if (confSortCol === 'location') { va = (a.location||'').toLowerCase(); vb = (b.location||'').toLowerCase(); return confSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
     if (confSortCol === 'attendees') { va = confAttCounts[a.id] || 0; vb = confAttCounts[b.id] || 0; }
     else if (confSortCol === 'actual') { va = (confTotals[a.id]||{}).actual || 0; vb = (confTotals[b.id]||{}).actual || 0; }
     else { va = (confTotals[a.id]||{}).budgeted || 0; vb = (confTotals[b.id]||{}).budgeted || 0; }
@@ -1031,7 +1032,7 @@ function renderAll() {
   const maxBud = confsSorted.length ? Math.max(...confs.map(c => (confTotals[c.id]||{}).budgeted || 0), 1) : 1;
 
   // Update sort arrows
-  ['name','date','attendees','budget','actual'].forEach(col => {
+  ['name','date','location','attendees','budget','actual'].forEach(col => {
     const el = document.getElementById('sort-' + col);
     if (el) { el.className = 'sort-arrow' + (confSortCol === col ? ' ' + confSortDir : ''); }
   });
@@ -1319,8 +1320,8 @@ function selectDrillPerson(name, confIdx) {
 
 function sortConfs(col) {
   if (confSortCol === col) { confSortDir = confSortDir === 'desc' ? 'asc' : 'desc'; }
-  else { confSortCol = col; confSortDir = (col === 'name' || col === 'date') ? 'asc' : 'desc'; }
-  renderOverview();
+  else { confSortCol = col; confSortDir = (col === 'name' || col === 'date' || col === 'location') ? 'asc' : 'desc'; }
+  renderAll();
 }
 
 function toggleConfRow(i, row) {
